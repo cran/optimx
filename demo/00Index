@@ -1,0 +1,11 @@
+brown_test       Test optimx on the Brown function
+broydt_test       Test optimx on a variant of the Broyden tridiagonal function
+chen_test       Test optimx on the Chen function
+froth_test       Test optimx on the Freudenstein and Roth function
+maxtestJN       Test optimx with maximizing rather than minimizing
+poissmix_test       Test optimx on a Poisson mixture problem
+rosbkext_test       Test optimx on the Rosenbrock function (extended)
+sc2_test       Test optimx on the SC2 function
+trig_test       Test optimx on the trigonometric test function
+valley_test       Test optimx on the valley function
+vmmix_test       Test optimx on the mixture function
