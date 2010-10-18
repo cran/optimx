@@ -128,7 +128,7 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   Method \code{"spg"} is from package BB implementing a spectral projected 
   gradient method for large-scale optimization with simple constraints due
   R adaptation, with significant modifications, by Ravi Varadhan,
-  Johns Hopkins University (March 25, 2008), from the original
+  Johns Hopkins University (Varadhan and Gilbert, 2009), from the original
   FORTRAN code of Birgin, Martinez, and Raydan (2001). 
 
   Method \code{"Rcgmin"} is from the package of that name. It implements a
@@ -367,13 +367,18 @@ Each such list has possible elements:
      system of algorithms for unconstrained minimization. _ACM Trans.
      Math. Software_, *11*, 419-440.
 
+ Varadhan, R. and Gilbert, P.D. (2009) \bold{BB}: An R Package for Solving a Large System of
+      Nonlinear Equations and for Optimizing a High-Dimensional
+      Nonlinear Objective Function. \emph{Journal of Statistical Software}, 
+      \bold{32}, 1--26.
+
 }
 
 \seealso{
-  \code{\link{nlm}}, \code{\link{nlminb}}.
+  \code{\link{spg}}, \code{\link{nlm}}, \code{\link{nlminb}}, \code{\link{bobyqa}}, \code{\link{Rcgmin}}, \code{\link{Rvmmin}}, \code{\link{ucminf}}.
 
-  \code{\link{optimize}} for one-dimensional minimization and
-  \code{\link{constrOptim}} for constrained optimization.
+  \code{\link{optimize}} for one-dimensional minimization;
+  \code{\link{constrOptim}} or \code{\link{spg}} for linearly constrained optimization.
 }
 
 \examples{
@@ -469,7 +474,7 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 }
 
 startx<-4*seq(1:10)/3.
-ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE), gs=10)
+ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE, trace=FALSE), gs=10)
 print(ans8)
 
 get.result(ans8, attribute="grs")
@@ -479,7 +484,7 @@ get.result(ans8, method="spg")
 startx<-4*seq(1:10)/3.
 cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf\n")
 ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
-             itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=TRUE), gs=10)
+             itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=FALSE), gs=10)
 print(ans9)
 
 

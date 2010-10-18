@@ -146,7 +146,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 # Set control defaults
     ctrl <- list(
 	follow.on=FALSE, 
-	save.failures=FALSE,
+	save.failures=TRUE,
 	trace=0,
 	sort.result=TRUE,
 	kkt=TRUE,
