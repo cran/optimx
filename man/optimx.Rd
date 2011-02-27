@@ -23,7 +23,7 @@
 }
 \usage{
 optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
-            method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=NULL,
+            method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...)
 
@@ -59,9 +59,10 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	there may be control list elements with similar functions, but this should be the
 	preferred approach when using \code{optimx}.}
  \item{hessian}{A logical control that if TRUE forces the computation of an approximation 
-       to the Hessian at the final set of parameters. If FALSE, ensures it is not calculated.
-       This setting is provided for compatibility with optim(). See how to set \code{kkt} in
-       \sQuote{Details}.}
+       to the Hessian at the final set of parameters. If FALSE (default), the hessian is
+       calculated if needed to provide the KKT optimality tests (see \code{kkt} in
+       \sQuote{Details} for the \code{control} list).
+       This setting is provided primarily for compatibility with optim().}
  \item{control}{A list of control parameters. See \sQuote{Details}.}
  \item{\dots}{Further arguments to be passed to \code{fn} and \code{gr}.}
 }
@@ -76,7 +77,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   Possible method codes at the time of writing are 'Nelder-Mead', 'BFGS',
   'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', and 'ucminf'.
 
-  The default methods are an implementation of the Nelder and Mead
+  The default methods for unconstrained problems (no \code{lower} or
+  \code{upper} specified) are an implementation of the Nelder and Mead
   (1965) and a Variable Metric method based on the ideas of Fletcher
   (1970) as modified by him in conversation with Nash (1979). Nelder-Mead
   uses only function values and is robust but relatively slow.  It will 
@@ -84,7 +86,11 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   Metric method, \code{"BFGS"} updates an approximation to the inverse
   Hessian using the BFGS update formulas, along with an acceptable point
   line search strategy. This method appears to work best with analytic
-  gradients. As at June 2009, a box-constrained version is being tested.
+  gradients. (\code{"Rvmmmin"} provides a box-constrained version of this
+  algorithm.
+
+  If no \code{method} is given, and there are bounds constraints provided,
+  the method is set to \code{"L-BFGS-B"}.
 
   Method \code{"CG"} is a conjugate gradients method based on that by
   Fletcher and Reeves (1964) (but with the option of Polak--Ribiere or
@@ -168,10 +174,15 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
       methods.}
     \item{\code{kkt}}{=FALSE if we do NOT want to test the Kuhn, Karush, Tucker
-      optimality conditions. Default is TRUE. We return logical values kkt1 and 
-      kkt2 TRUE if first and second order conditions are satisfied approximately.
+      optimality conditions. The default is TRUE. However, because the Hessian
+      computation may be very slow, we set \code{kkt} to be FALSE if there are 
+      more than than 50 parameters when the gradient function \code{gr} is not 
+      provided, and more than 500
+      parameters when such a function is specified. We return logical values \code{KKT1}
+      and \code{KKT2} TRUE if first and second order conditions are satisfied approximately.
       Note, however, that the tests are sensitive to scaling, and users may need
-      to perform additional verification. }
+      to perform additional verification. If \code{kkt} is FALSE but \code{hessian}
+      is TRUE, then \code{KKT1} is generated, but \code{KKT2} is not.}
     \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
       methods.}
     \item{\code{sort.result}}{= TRUE if we want to have the results table sorted 
@@ -197,7 +208,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     \item{\code{fnscale}}{An overall scaling to be applied to the value
       of \code{fn} and \code{gr} during optimization. If negative,
       turns the problem into a maximization problem. Optimization is
-      performed on \code{fn(par)/fnscale}. For \code{optim}.}
+      performed on \code{fn(par)/fnscale}. For methods from the set in
+      \code{optim()}. Note potential conflicts with the control \code{maximize}.}
     \item{\code{parscale}}{A vector of scaling values for the parameters.
 	Optimization is performed on \code{par/parscale} and these should be
 	comparable in the sense that a unit change in any element produces
@@ -243,18 +255,32 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
 }
 \value{
-  A list with components:
+
+	ansout <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
+                        itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
+
+
+  A dataframe with the following columns, each having one element (row) for each
+  each of the methods that has returned an answer. In each row the columne elements
+  give:
   \item{par}{The best set of parameters found.}
-  \item{value}{The value of \code{fn} corresponding to \code{par}.}
-  \item{counts}{A two-element integer vector giving the number of calls
-    to \code{fn} and \code{gr} respectively. This excludes those calls needed
+  \item{fvalues}{The value of \code{fn} corresponding to \code{par}.}
+  \item{method}{The name of the method used for this answer.}
+  \item{fns}{The number of calls to \code{fn}.}
+  \item{grs}{The number of calls to \code{gr}. This excludes those calls needed
     to compute the Hessian, if requested, and any calls to \code{fn} to
     compute a finite-difference approximation to the gradient.}
-  \item{convergence}{An integer code. \code{0} indicates successful
-    convergence. Error codes are
+  \item{itns}{For those methods where it is reported, the number of ``iterations''. See
+    the documentation or code for particular methods for the meaning of such counts.}
+  \item{conv}{An integer code. \code{0} indicates successful
+    convergence. Various methods may or may not return sufficient information
+	to allow all the codes to be specified. An incomplete list of codes includes
     \describe{
       \item{\code{1}}{indicates that the iteration limit \code{maxit}
       had been reached.}
+      \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
+	that the function cannot be computed or returns an infinite, NULL, or NA value.}
+      \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}
       \item{\code{10}}{indicates degeneracy of the Nelder--Mead simplex.}
       \item{\code{51}}{indicates a warning from the \code{"L-BFGS-B"}
       method; see component \code{message} for further details.}
@@ -262,12 +288,10 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method; see component \code{message} for further details.}
     }
   }
-  \item{message}{A character string giving any additional information
-    returned by the optimizer, or \code{NULL}.}
-  \item{hessian}{Only if argument \code{hessian} is true. A symmetric
-    matrix giving an estimate of the Hessian at the solution found. Note
-    that this is the Hessian of the unconstrained problem even if the
-    box constraints are active.}
+  \item{KKT1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
+  \item{KKT2}{A logical value returned TRUE if the solution reported appears to have a 
+  positive-definite Hessian.}
+  \item{xtimes}{The reported execution time of the calculations for the particular method.}
 
 More detail is provided in the attribute "details" to the returned answer object. 
 If the returned object from optimx() is \code{ans}, this is accessed 
@@ -404,7 +428,7 @@ print(ans2)
 ## The next line will fail if executed because 'hessian = TRUE' no longer allowed
 # ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE)
 cat("\n\n")
-ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=TRUE))
+ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=1))
 print(ans4)
 cat("\n\n")
 ans5<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))
@@ -474,7 +498,7 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 }
 
 startx<-4*seq(1:10)/3.
-ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE, trace=FALSE), gs=10)
+ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
 print(ans8)
 
 get.result(ans8, attribute="grs")
@@ -484,8 +508,48 @@ get.result(ans8, method="spg")
 startx<-4*seq(1:10)/3.
 cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf\n")
 ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
-             itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=FALSE), gs=10)
+             itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
 print(ans9)
+
+startx<-4*seq(1:10)/3.
+cat("200 steps NM is not enough to terminate\n")
+ans10<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("Nelder-Mead"),
+             itnmax=c(200), control=list(trace=0, save.failures=FALSE), gs=10)
+cat("The answer should be NULL\n")
+print(ans10)
+
+
+startx<-4*seq(1:10)/3.
+cat("Try getting hessian but not kkt tests\n")
+ans11<-optimx(startx,fn=genrose.f,gr=genrose.g, hessian=TRUE,  
+	control=list(all.methods=TRUE, trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
+print(ans11)
+cat("Method 7 should be Rvmmin\n")
+print(attr(ans11,"details")[7])
+
+
+genrose.h <- function(x, gs=NULL) { ## compute Hessian
+   if(is.null(gs)) { gs=100.0 }
+	n <- length(x)
+	hh<-matrix(rep(0, n*n),n,n)
+	for (i in 2:n) {
+		z1<-x[i]-x[i-1]*x[i-1]
+		z2<-1.0-x[i]
+                hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
+                hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
+                hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
+                hh[i-1,i]<-hh[i-1,i]-4.0*gs*x[i-1]
+	}
+        return(hh)
+}
+
+
+startx<-4*seq(1:10)/3.
+cat("Use analytic hessian and no KKT tests\n")
+ans12<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
+      control=list(trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
+print(ans12)
+print(attr(ans12,"details"))
 
 
 }

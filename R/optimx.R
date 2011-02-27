@@ -1,5 +1,5 @@
 optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
-            method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=NULL,
+            method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...) {
 ##### OPEN ISSUES: (any date order)
@@ -12,6 +12,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # 090601 -- ?? Do we want hessevals to count Hessian evaluations?
 
 ##### IMPLEMENTED: (reverse date order)
+# 110212 -- & to && and | to || for controls
+# 110212 -- Hessian changed from NULL to FALSE default
 # 100328 -- check if maximize works for Powell (minqa) routines -- 100415
 # 100329 -- make sure spg fixed on CRAN -- 100415
 # 100329 -- maximize tested for all but minqa, though spg needs fixup on CRAN.
@@ -126,7 +128,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		lbratio<-NA
 	}
 	ratios<-list(lpratio=lpratio,lbratio=lbratio)
-	return(ratios)
+	# return(ratios)
 }
 # -------------- end scalecheck ----------------- #
 
@@ -165,10 +167,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #    if (!all(namc %in% names(ctrl))) 
 #        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
 # However, we do want to substitute the appropriate information. 
-# hessian control gets copied to kkt control
-    if (!is.null(hessian)){
-	control$kkt<-hessian # Note: in optim, hessian is NOT in control settings.
-    }
+# removed copy of hessian to control$kkt
     ncontrol <- names(control)
     nctrl <- names(ctrl)
     for (onename in ncontrol) {
@@ -178,7 +177,8 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
            ctrl[onename]<-control[onename]
        }
     }
-    if (is.null(control$kkt)) { # default is to turn off kkt for large matrices
+    if (is.null(control$kkt)) { # turn off kkt for large matrices
+      ctrl$kkt<-TRUE # default it to compute KKT tests
       if (is.null(gr)) { # no analytic gradient
          if (npar > 50) {
            ctrl$kkt=FALSE # too much work when large number of parameters
@@ -194,11 +194,11 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
       if (control$kkt) {
         if (is.null(gr)) {
            if (npar > 50) {
-             if ((ctrl$trace>0) & ctrl$dowarn) warning("Computing hessian for gr NULL, npar > 50, can be slow\n")
+             if ((ctrl$trace>0) && ctrl$dowarn) warning("Computing hessian for gr NULL, npar > 50, can be slow\n")
            }
         } else {
            if (npar > 500) {
-             if ((ctrl$trace>0) & ctrl$dowarn) warning("Computing hessian even with gradient code, npar > 500, can be slow\n")
+             if ((ctrl$trace>0) && ctrl$dowarn) warning("Computing hessian with gr code, npar > 500, can be slow\n")
            }
         }
       }
@@ -207,12 +207,12 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 # 091216 for maximization
   negfn <- function (par, ...) { # negate the function for maximizing
 	val<-(-1.)*fn(par,...)
-	return(val)
+	# return(val)
   } # end of negfn
   if (! is.null(gr) ) {
     neggr <- function (par, ...) { # negate the function for maximizing
 	ngr<-(-1.)*gr(par,...)
-	return(ngr)
+	# return(ngr)
     } # end of neggr
   } else { neggr<-NULL }
   ufn<-fn
@@ -314,23 +314,35 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #    the maximum number of function evaluations; remove DEoptim for now -- not useful 
 #    for smooth functions. Code left in for those who may need it.
   # List of methods in packages. 
-  pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "uobyqa", "newuoa")
+# uobyqa removed 110114 because of some crashes. newuoa should be more efficient anyway.  
+  pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "newuoa")
   allmeth <- c(bmeth, pmeth)
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa") 
   if (ctrl$all.methods) { # Changes method vector!
 	method<-allmeth
-#??        if (ctrl$trace>0) {
+        if (ctrl$trace>0) {
 		cat("all.methods is TRUE -- Using all available methods\n")
 		print(method)
-#??	}
+	}
   } 
 
   # Partial matching of method string allowed
   # avoid duplicates here
-  method <- unique(match.arg(method, allmeth, several.ok=TRUE) )
-  nmeth <- length(method) # number of methods requested
-
+  # 2011-1-17 JN: to set L-BFGS-B
+  method <- try(unique(match.arg(method, allmeth, several.ok=TRUE) ),silent=TRUE)
+  if (class(method)=="try-error") {
+     warning("optimx: No match to available methods")
+     method<-NULL
+     nmeth<-0
+  } else {
+     nmeth <- length(method) # number of methods requested
+  } # JN 2011-1-17 fix for default when there are bounds
+  if ((nmeth==0) && have.bounds) {
+      method="L-BFGS-B"
+      warning("Default method when bounds specified is L-BFGS-B to match optim()")
+      nmeth<-1
+  }
   ## Check that methods are indeed available and loaded
   for (i in 1:nmeth) {
      cmeth <- method[i]
@@ -519,11 +531,13 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		print.level<-mcontrol$trace
 		mcontrol$trace<-NULL
 	}
-        
-        time <- system.time(ans <- try(nlm(f=ufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
+
+# 110121 -- need to put tufn NOT ufn in call 
+#        time <- system.time(ans <- try(nlm(f=ufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
+        time <- system.time(ans <- try(nlm(f=tufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$conv <- ans$code
-		if (ans$conv == 1 | ans$conv == 2 | ans$conv == 3) ans$conv <- 0
+		if (ans$conv == 1 || ans$conv == 2 || ans$conv == 3) ans$conv <- 0
 		if (ans$conv == 4) ans$conv <- 1
         	# Translate output to common format
 		ans$value<-ans$minimum
@@ -592,7 +606,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #                                           -6 Computation did not start: maxeval <= 0.
 #                                           -7 Computation did not start: given Hessian not pos. definite.
 #                             message: String with reason of termination.
-		if (ans$conv == 1 | ans$conv == 2 | ans$conv == 4) {
+		if (ans$conv == 1 || ans$conv == 2 || ans$conv == 4) {
          		ans$conv <- 0
 		} else {
 			ans$conv <- ans$convergence
@@ -648,15 +662,16 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
         time <- system.time(ans <- try(Rvmmin(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
-        if (class(ans)[1] != "try-error") {
+        if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
 		ans$conv <- ans$convergence
 	        ans$fevals<-ans$counts[1]
 	        ans$gevals<-ans$counts[2]
-		ans$value<-ans$value 
+##		ans$value<-ans$fvalue 
         } else {
 		if (ctrl$trace>0) cat("Rvmmin failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		ans$value= ctrl$badval
+##		ans$value<-ans$fvalue 
+##		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 
@@ -802,72 +817,88 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
       times[i] <- times[i] + time # Accumulate time for a single method (in case called multiple times)
       if (ctrl$trace>0) { cat("Post processing for method ",meth,"\n") }
-      if ( ctrl$save.failures || (ans$conv <= 1) ){  # Save the solution if converged or directed to save
+      pars<-NULL # Unless length(pars)>0 we don't save anything later
+      if ( ctrl$save.failures || (ans$conv < 1) ){  # Save the solution if converged or directed to save
           j <- j + 1 ## increment the counter for (successful) method/start case
-          if (ctrl$trace & ans$conv==0) cat("Successful convergence! \n")  ## inform user we've succeeded
+          if (ctrl$trace && ans$conv==0) cat("Successful convergence! \n")  ## inform user we've succeeded
           # Testing final solution. Use numDeriv to get gradient and Hessian; compute Hessian eigenvalues
-          ## temp output
+          hessOK<-FALSE # indicator for later
+          if ((ctrl$kkt || hessian) && (ans$conv != 9999)) {
+              if (ctrl$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
+              if (!is.null(hess)){ # check if we have analytic hessian 
+                 nhatend<-try(hess(ans$par, ...), silent=TRUE)
+                 if (class(nhatend) != "try-error") {
+                    hessOK<-TRUE
+                    if (ctrl$maximize) nhatend<- (-1)*nhatend
+                 }
+              } else {
+                 if (is.null(gr)) {
+                     nhatend<-try(hessian(ufn, ans$par, ...), silent=TRUE) # change 20100711
+                 } else {
+                     nhatend<-try(jacobian(ugr,ans$par, ...), silent=TRUE) # change 20100711
+                 } # numerical hessian at "solution"
+                 if (class(nhatend) != "try-error") {
+                    hessOK<-TRUE
+                 }
+              } # end hessian calculation
+          } # end test if hessian computed
           ans$kkt1<-NA
           ans$kkt2<-NA
-          if(ctrl$kkt && (ans$conv != 9999)) { # need to avoid test when method failed
-              ## 091215 add dots here!
-              if (ctrl$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
-              gradOK<-FALSE
-              if (is.null(gr)) {
-                  ngatend<-try(grad(ufn, ans$par, ...), silent=TRUE) # change 20100711
-              } else {
-                  ngatend<-try(ugr(ans$par, ...), silent=TRUE) # Gradient at solution # change 20100711
-              }
-              if (class(ngatend) != "try-error") gradOK<-TRUE # 100215 had == rather than != here
-              if ( (! gradOK) & (ctrl$trace>0)) cat("Gradient computations failure!\n") # ???? remove
-              if (gradOK) {
-                  # test gradient
-                  ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # ?? Is this sensible?
-                  if (ctrl$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
-                  if (is.null(gr)) {
-                      nhatend<-try(hessian(ufn, ans$par, ...), silent=TRUE) # change 20100711
-                  } else {
-                      nhatend<-try(jacobian(ugr,ans$par, ...), silent=TRUE) # change 20100711
-                  } # numerical hessian at "solution"
-                  if (class(nhatend) != "try-error") {
-                      # For bounds constraints, we need to "project" the gradient and Hessian
-                      bset<-sort(unique(c(which(ans$par<=lower), which(ans$par>=upper))))
-                      nbds<-length(bset) # number of elements nulled by bounds
-                      # Note: we assume that we are ON, not over boundary, but use <= and >=. No tolerance is used.
-                      ngatend[bset]<-0 # "project" the gradient
-                      nhatend[bset,] <-0
-                      nhatend[, bset] <-0 # and the Hessian
-                      ans$ngatend <- ngatend
-                      ans$nhatend <- nhatend
-                      hev<- try(eigen(nhatend)$values, silent=TRUE) # 091215 use try in case of trouble, # 20100711 silent
-                      if (class(hev) != "try-error") {
-                          ans$evnhatend <- hev # answers are OK
-                          # now look at Hessian
-                          negeig<-(ans$evnhatend[npar] <= (-1)*ctrl$kkt2tol*(1.0+abs(ans$value))) # 20100711 kkt2tol
-                          evratio<-ans$evnhatend[npar-nbds]/ans$evnhatend[1]
-                          # If non-positive definite, then there will be zero eigenvalues (from the projection)
-                          # in the place of the "last" eigenvalue and we'll have singularity.
-                          # WARNING: Could have a weak minimum if semi-definite.
-                          ans$kkt2<- (evratio > ctrl$kkt2tol) && (! negeig) 
+###          if((hessian || ctrl$kkt) && (ans$conv != 9999)) { # need to avoid test when method failed
+             if (ctrl$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
+             gradOK<-FALSE
+             if (is.null(gr)) {
+                 ngatend<-try(grad(ufn, ans$par, ...), silent=TRUE) # change 20100711
+             } else {
+                 ngatend<-try(ugr(ans$par, ...), silent=TRUE) # Gradient at solution # change 20100711
+             }
+             if (class(ngatend) != "try-error") gradOK<-TRUE # 100215 had == rather than != here
+             if ( (! gradOK) && (ctrl$trace>0)) cat("Gradient computation failure!\n") 
+             if (gradOK) {
+                # test gradient
+                ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # ?? Is this sensible?
+                if (hessOK) {
+                   # For bounds constraints, we need to "project" the gradient and Hessian
+                   bset<-sort(unique(c(which(ans$par<=lower), which(ans$par>=upper))))
+                   nbds<-length(bset) # number of elements nulled by bounds
+                   # Note: we assume that we are ON, not over boundary, but use <= and >=. No tolerance is used.
+                   ngatend[bset]<-0 # "project" the gradient
+                   nhatend[bset,] <-0
+                   nhatend[, bset] <-0 # and the Hessian
+                   ans$ngatend <- ngatend
+                   ans$nhatend <- nhatend
+                   hev<- try(eigen(nhatend)$values, silent=TRUE) # 091215 use try in case of trouble, 
+		       # 20100711 silent
+                   if (ctrl$kkt){
+   	              if (class(hev) != "try-error") {
+                         ans$evnhatend <- hev # answers are OK
+                         # now look at Hessian properties
+                         negeig<-(ans$evnhatend[npar] <= (-1)*ctrl$kkt2tol*(1.0+abs(ans$value))) # 20100711 kkt2tol
+                         evratio<-ans$evnhatend[npar-nbds]/ans$evnhatend[1]
+                         # If non-positive definite, then there will be zero eigenvalues (from the projection)
+                         # in the place of the "last" eigenvalue and we'll have singularity.
+                         # WARNING: Could have a weak minimum if semi-definite.
+                         ans$kkt2<- (evratio > ctrl$kkt2tol) && (! negeig)
                       } else {
-                          warnstr<-paste("Eigenvalue failure after method ",method[i],sep='')
-                          if (ctrl$dowarn) warning(warnstr)
-                          if (ctrl$trace>0) {
-                              cat("Eigenvalue failure!\n")
-                              print(nhatend)
-                          }
+                         warnstr<-paste("Eigenvalue failure after method ",method[i],sep='')
+                         if (ctrl$dowarn) warning(warnstr)
+                         if (ctrl$trace>0) {
+                            cat("Hessian eigenvalue calculation failure!\n")
+                            print(nhatend)
+                         }
                       }
-                  } else { # computing Hessian has failed
-                      warnstr<-paste("Hessian not computable after method ",method[i],sep='')
-                      if (ctrl$dowarn) warning(warnstr)
-                      if (ctrl$trace>0) cat(warnstr,"\n") 
-                  }
-              } else { # gradient failure
-                  warnstr<-paste("Gradient not computable after method ",method[i],sep='')
-                  if (ctrl$dowarn) warning(warnstr)
-                  if (ctrl$trace>0) cat(warnstr,"\n") 
-              }
-          } # end kkt test
+                   } # kkt2 evaluation
+                } else { # computing Hessian has failed
+                   warnstr<-paste("Hessian not computable after method ",method[i],sep='')
+                   if (ctrl$dowarn) warning(warnstr)
+                   if (ctrl$trace>0) cat(warnstr,"\n") 
+                }
+             } else { # gradient failure
+                warnstr<-paste("Gradient not computable after method ",method[i],sep='')
+                if (ctrl$dowarn) warning(warnstr)
+                if (ctrl$trace>0) cat(warnstr,"\n") 
+             }
+###          } # end kkt test
           ans$systime <- time
           # Do we want more information saved?
           if (ctrl$trace>0) { 
@@ -903,7 +934,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #      	if (ctrl$trace>0) { cat("Check if follow.on from method ",meth,"\n") }
       	if (ctrl$follow.on) {
 		par <- ans$par # save parameters for next method
-		if (i < nmeth & ctrl$dowarn) cat("FOLLOW ON!\n")
+		if (i < nmeth && ctrl$dowarn) cat("FOLLOW ON!\n")
 	}
     } ## end loop over method (index i)
 #    if (ctrl$trace>0) { cat("Consolidate ans.ret\n") }
@@ -928,6 +959,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
     } else {
 	ansout<-NULL # no answer if no parameters
     } 
-    return(ansout)
+    ansout # return(ansout)
 } ## end of optimx
 
