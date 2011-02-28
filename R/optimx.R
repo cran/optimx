@@ -950,7 +950,8 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	# ?? FIXUP FOR maximize
     	if (ctrl$trace>0) { cat("Sort results\n") }
     	if (ctrl$sort.result) { # sort by fvalues decreasing
-        	ord <- rev(order(as.numeric(ansout$fvalues)))
+                fvalsu<-unlist(ansout$fvalues) # 110728
+                ord <- order(fvalsu, na.last=FALSE, decreasing=TRUE)
         	ansout <- ansout[ord, ]
     	}
 	# save to file
