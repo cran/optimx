@@ -1,6 +1,8 @@
 brown_test       Test optimx on the Brown function
+brown_testRV       Test optimx on the Brown function (Ravi Varadhan)
 broydt_test       Test optimx on a variant of the Broyden tridiagonal function
 chen_test       Test optimx on the Chen function
+chenlog_test       Test optimx on the Chen function (log-transformed parameters)
 froth_test       Test optimx on the Freudenstein and Roth function
 maxtestJN       Test optimx with maximizing rather than minimizing
 poissmix_test       Test optimx on a Poisson mixture problem
