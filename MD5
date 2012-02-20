@@ -1,8 +1,8 @@
-a7472cc6e60af5f078308615db83e19c *DESCRIPTION
+3da7c0165abd9cff7cb0db9c04db35b6 *DESCRIPTION
 60eaebd581ed22fafd1ad375d5ea09ee *NAMESPACE
 e3691614e5352e9b98b83286cc11337c *R/get.result.R
 f319960e37d50bf90bc0f4bf58bbddcf *R/optansout.R
-f6b7b8fcf79089999a58a2b70d70aaef *R/optimx.R
+de2d68e5bcb18e0b2688f587ab4b0699 *R/optimx.R
 515ec318815078c2bb0b8b2e728aba22 *demo/00Index
 67688abfe2cd9468425f1848c98f47ac *demo/brown_test.R
 1b75ab800e478ca6142d515ae61603d6 *demo/brown_testRV.R
