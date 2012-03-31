@@ -1,8 +1,8 @@
-3da7c0165abd9cff7cb0db9c04db35b6 *DESCRIPTION
+26d11ac5d0816aa715169f52a6d5e8bf *DESCRIPTION
 60eaebd581ed22fafd1ad375d5ea09ee *NAMESPACE
 e3691614e5352e9b98b83286cc11337c *R/get.result.R
 f319960e37d50bf90bc0f4bf58bbddcf *R/optansout.R
-de2d68e5bcb18e0b2688f587ab4b0699 *R/optimx.R
+3fb2d5850cd00b99f991a43b3f283a92 *R/optimx.R
 515ec318815078c2bb0b8b2e728aba22 *demo/00Index
 67688abfe2cd9468425f1848c98f47ac *demo/brown_test.R
 1b75ab800e478ca6142d515ae61603d6 *demo/brown_testRV.R
@@ -20,4 +20,4 @@ c6138bac642c0b771429fe203e579c95 *demo/trig_test.R
 17244e694cc917d7d5c7e3054b2ff0b0 *inst/CITATION
 0bfc6de8fdfc18cadcc95e6006cc2e16 *man/get.result.Rd
 7e9172a2ef3bcf9322feb7725479a999 *man/optansout.Rd
-a212a5b15ff09ab7e52a6a05b4dbb72c *man/optimx.Rd
+ce426af8a14fbf191840f081780ebc00 *man/optimx.Rd

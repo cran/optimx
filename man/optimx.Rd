@@ -402,10 +402,10 @@ Each such list has possible elements:
 }
 
 \seealso{
-  \code{\link{spg}}, \code{\link{nlm}}, \code{\link{nlminb}}, \code{\link{bobyqa}}, \code{\link{Rcgmin}}, \code{\link{Rvmmin}}, \code{\link{ucminf}}.
+  \code{spg}, \code{\link{nlm}}, \code{\link{nlminb}}, \code{bobyqa}, \code{Rcgmin}, \code{Rvmmin}, \code{ucminf}.
 
   \code{\link{optimize}} for one-dimensional minimization;
-  \code{\link{constrOptim}} or \code{\link{spg}} for linearly constrained optimization.
+  \code{constrOptim} or \code{spg} for linearly constrained optimization.
 }
 
 \examples{
