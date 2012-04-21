@@ -315,11 +315,28 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #    the maximum number of function evaluations; remove DEoptim for now -- not useful 
 #    for smooth functions. Code left in for those who may need it.
   # List of methods in packages. 
-# uobyqa removed 110114 because of some crashes. newuoa should be more efficient anyway.  
-  pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "newuoa")
-  allmeth <- c(bmeth, pmeth)
+  allmeth <- bmeth
+# Now make sure methods loaded
+   allmeth <- bmeth # start with base methods
+   if (require(BB, quietly=FALSE) )  allmeth<-c(allmeth,"spg")
+   else warning("Package `BB' Not installed", call.=FALSE)
+
+   if (require(ucminf, quietly=FALSE) ) allmeth<-c(allmeth, "ucminf")
+   else warning("Package `ucminf' Not installed", call.=FALSE)
+   
+   if (require(Rcgmin, quietly=FALSE) )  allmeth<-c(allmeth, "Rcgmin")
+   else warning("Package `Rcgmin' Not installed", call.=FALSE)
+   
+   if (require(Rvmmin, quietly=FALSE) )  allmeth<-c(allmeth, "Rvmmin")
+   else warning("Package `Rvmmin' Not installed", call.=FALSE)
+   
+   if (require(minqa, quietly=FALSE) ) allmeth<-c(allmeth, "newuoa", "bobyqa") 
+   # leave out uobyqa in CRAN version 120421 (from earlier 1104 change)
+   else  warning("Package `minqa' (for uobyqa, newuoa, and bobyqa) Not installed", call.=FALSE)
+   
+   bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
   # Restrict list of methods if we have bounds
-  if (any(is.finite(c(lower, upper)))) allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa") 
+  if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
   if (ctrl$all.methods) { # Changes method vector!
 	method<-allmeth
         if (ctrl$trace>0) {
@@ -357,46 +374,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
     cat("Methods to be used:")
     print(method)
   }
-# Now make sure methods loaded
-  if(any(method == "spg")) {
-#	if ("BB" %in% ipkgs[,1]) require(BB, quietly=TRUE)
-#	else  stop("Package `BB' Not installed", call.=FALSE)
-	if (! require(BB, quietly=TRUE))  stop("Package `BB' Not installed", call.=FALSE)
-	}
-  if(any(method == "ucminf")) { 
-#	if ("ucminf" %in% ipkgs[,1]) require(ucminf, quietly=TRUE)
-#	else  stop("Package `ucminf' Not installed", call.=FALSE)
-	if (! require(ucminf, quietly=TRUE) )  stop("Package `ucminf' Not installed", call.=FALSE)
-	}
-  if(any(method == "Rcgmin")) { 
-#	if ("Rcgmin" %in% ipkgs[,1]) require(Rcgmin, quietly=TRUE)
-#	else  stop("Package `Rcgmin' Not installed", call.=FALSE)
-	if (! require(Rcgmin, quietly=TRUE) ) stop("Package `Rcgmin' Not installed", call.=FALSE)
-	}
-  if(any(method == "Rvmmin")) { 
-#	if ("Rvmmin" %in% ipkgs[,1]) require(Rvmmin, quietly=TRUE)
-#	else  stop("Package `Rvmmin' Not installed", call.=FALSE)
-	if (! require(Rvmmin, quietly=TRUE)) stop("Package `Rvmmin' Not installed", call.=FALSE)
-	}
-  if(any(method == "bobyqa")) { 
-#	if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=TRUE)
-#	else  stop("Package `minqa' (for bobyqa) Not installed", call.=FALSE)
-	if (! require(minqa, quietly=TRUE) ) stop("Package `minqa' (for bobyqa, newuoa and uobyqa) Not installed", call.=FALSE)
-	}
-  if(any(method == "newuoa")) { 
-#	if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=TRUE)
-#	else  stop("Package `minqa' (for bobyqa) Not installed", call.=FALSE)
-	if (! require(minqa, quietly=TRUE) ) stop("Package `minqa' (for bobyqa, newuoa and uobyqa) Not installed", call.=FALSE)
-	}
-  if(any(method == "uobyqa")) { 
-#	if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=TRUE)
-#	else  stop("Package `minqa' (for uobyqa) Not installed", call.=FALSE)
-	if (! require(minqa, quietly=TRUE) ) stop("Package `minqa' (for bobyqa, newuoa and uobyqa) Not installed", call.=FALSE)
-	}
-#  if(any(method == "DEoptim")) { # Code removed as DEoptim not part of current set of methods
-#	if ("DEoptim" %in% ipkgs[,1]) require(DEoptim, quietly=TRUE)
-#	else  stop("Package `DEoptim' Not installed", call.=FALSE)
-#	}
 
 # Scaling check  091219
     if (ctrl$starttests) {
@@ -675,7 +652,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		if (ctrl$trace>0) cat("Rvmmin failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
 ##		ans$value<-ans$fvalue 
-		ans$value= ctrl$badval
+##		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 
