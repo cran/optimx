@@ -21,7 +21,7 @@ sum (f * f)
 p0 <- rpois(2,10)
 system.time(ans.optx <- optimx(par=p0, fn=froth.f, control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
 
-optansout(ans.optx,filename="./ansfroth.txt")
+print(ans.optx)
 
 
 #allpar<-ans.optx$par # ans.optx is a dataframe!

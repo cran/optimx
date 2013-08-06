@@ -47,12 +47,12 @@ p0 <- log(rexp(n)) # use log to keep away from 0 and failure
 system.time(ans.optx <- optimx(par=p0, fn=chenl.f, 
    control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
 
-optansout(ans.optx,filename="./anschenl.txt")
+print(ans.optx)
 
 system.time(ans.optxG <- optimx(par=p0, fn=chenl.f, gr=chenl.g, 
    control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
 
-optansout(ans.optxG,filename="./anschenG.txt")
+print(ans.optxG)
 
 ans.optx<-transform(ans.optx, pflag="F")
 ans.optxG<-transform(ans.optxG, pflag="FG")

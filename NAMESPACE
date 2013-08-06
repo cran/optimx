@@ -1,5 +1,11 @@
 export(
   "optimx",
-  "optansout",
-  "get.result"
+  "coef<-"
 )
+S3method("[", "optimx")
+S3method("as.data.frame", "optimx")
+S3method("coef", "optimx")
+S3method("coef<-", "optimx")
+S3method("summary", "optimx")
+
+

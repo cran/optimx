@@ -34,6 +34,6 @@ p <- runif(3,c(0.3,1,1),c(0.7,5,8))
 system.time(ans.optx <- optimx(par=p, fn=poissmix.loglik, y=y, lower=lo, upper=hi,
     control=list(maxit=2500,save.failures=TRUE,all.methods=TRUE)))[1]
 
-optansout(ans.optx,filename="./anspoissmix.txt")
+print(ans.optx)
 
 

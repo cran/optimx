@@ -26,7 +26,7 @@ p0 <- rnorm(npar,sd=2)
 system.time(ans.optx <- optimx(par=p0, fn=brown.f, control=list(all.methods=TRUE, save.failures=TRUE, maxit=2500)))[1]
 
 
-optansout(ans.optx,filename="./ansbrown.txt")
+print(ans.optx)
 
 #allpar<-ans.optx$par # ans.optx is a dataframe!
 #allmeth<-ans.optx$method

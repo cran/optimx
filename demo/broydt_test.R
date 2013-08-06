@@ -23,7 +23,7 @@ sum(f*f)
 p0 <- rnorm(50, sd=1)
 system.time(ans.optx <- optimx(par=p0, fn=broydt.f,control=list(maxit=25000,save.failures=TRUE,all.methods=TRUE)))[1]
 
-optansout(ans.optx,filename="./ansbroydt.txt")
+print(ans.optx)
 
 
 

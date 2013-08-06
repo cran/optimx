@@ -19,7 +19,7 @@ sum (100*(p[1:(n-1)]^2 - p[2:n])^2 + (p[1:(n-1)] - 1)^2)
 p0 <- rnorm(50,sd=2)
 system.time(ans.optx <- optimx(par=p0, fn=rosbkext.f, control=list(maxit=2500,save.failures=TRUE,all.methods=TRUE)))[1]
 
-optansout(ans.optx,filename="./ansrosbext.txt")
+print(ans.optx)
 
 
 

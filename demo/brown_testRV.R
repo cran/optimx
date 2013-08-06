@@ -38,9 +38,8 @@ npar<-50 # Down from 500
 p0 <- rnorm(npar,sd=2)
 system.time(ans.brownRV <- optimx(par=p0, fn=brown.f, 
    control=list(trace=2, all.methods=TRUE, save.failures=TRUE, maxit=2500)))[1]
-optansout(ans.brownRV,filename="./ansbrownRV.txt")
+print(ans.brownRV)
 
-ans.brownRV
 cat("================= end brownRV_test ==================\n")
 
 

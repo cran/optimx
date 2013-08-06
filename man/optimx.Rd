@@ -5,6 +5,8 @@
 
 \name{optimx}
 \alias{optimx}
+\alias{[.optimx}
+\alias{as.data.frame.optimx}
 \encoding{UTF-8}
 \title{General-purpose optimization}
 \concept{minimization}
@@ -26,21 +28,16 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...)
-
 }
 \arguments{
- \item{par}{A vector of initial values for the parameters for which optimal 
-   values are to be found. }
+ \item{par}{a vector of initial values for the parameters 
+   for which optimal values are to be found. Names on the elements
+   of this vector are preserved and used in the results data frame.}  
  \item{fn}{A function to be minimized (or maximized), with first
    argument the vector of parameters over which minimization is to take
    place.  It should return a scalar result.}
  \item{gr}{A function to return (as a vector) the gradient for those methods that 
    can use this information.
-   This includes the following methods:
-		\code{"BFGS"}
-		\code{"CG"}
-		\code{"L-BFGS-B"}
-
 
    If 'gr' is \code{NULL}, a finite-difference approximation will be used.
    An open question concerns whether the SAME approximation code used for all methods, 
@@ -64,7 +61,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        \sQuote{Details} for the \code{control} list).
        This setting is provided primarily for compatibility with optim().}
  \item{control}{A list of control parameters. See \sQuote{Details}.}
- \item{\dots}{Further arguments to be passed to \code{fn} and \code{gr}.}
+ \item{\dots}{For \code{optimx} further arguments to be passed to \code{fn} 
+    and \code{gr}; otherwise, further arguments are not used.}
 }
 \details{
   Note that arguments after \code{\dots} must be matched exactly.
@@ -75,7 +73,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   use both methods. 
 
   Possible method codes at the time of writing are 'Nelder-Mead', 'BFGS',
-  'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', and 'ucminf'.
+  'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', 'ucminf', 'newuoa', 'bobyqa',
+  'nmkb', 'hjkb', 'Rcgmin', or 'Rvmmin'.
 
   The default methods for unconstrained problems (no \code{lower} or
   \code{upper} specified) are an implementation of the Nelder and Mead
@@ -148,7 +147,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   routines of the similar names due to M J D Powell (2009). See package minqa 
   for details. Note that \code{"uobyqa"} and \code{"newuoa"} are for 
   unconstrained minimization, while \code{"bobyqa"} is for box constrained
-  problems.
+  problems. While \code{"uobyqa"} may be specified, it is NOT part of the 
+  \code{all.methods = TRUE} set.
 
   The \code{control} argument is a list that can supply any of the
   following components:
@@ -164,7 +164,7 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       methods, then the last set of 
       parameters from one method is used as the starting set for the next. }
     \item{\code{save.failures}}{ = TRUE if we wish to keep "answers" from runs 
-      where the method does not return conv==0. FALSE otherwise (default).}
+      where the method does not return convcode==0. FALSE otherwise (default).}
     \item{\code{maximize}}{ = TRUE if we want to maximize rather than minimize 
       a function. (Default FALSE). Methods nlm, nlminb, ucminf cannot maximize a
       function, so the user must explicitly minimize and carry out the adjustment
@@ -185,8 +185,6 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       is TRUE, then \code{KKT1} is generated, but \code{KKT2} is not.}
     \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
       methods.}
-    \item{\code{sort.result}}{= TRUE if we want to have the results table sorted 
-      into reverse order of final objective function.}
     \item{\code{kkttol}}{= value to use to check for small gradient and negative
       Hessian eigenvalues. Default = .Machine$double.eps^(1/3) }
     \item{\code{kkt2tol}}{= Tolerance for eigenvalue ratio in KKT test of positive 
@@ -198,6 +196,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       TRUE.}
     \item{\code{badval}}{= The value to set for the function value when try(fn()) fails.
       Default is (0.5)*.Machine$double.xmax }
+    \item{\code{usenumDeriv}}{= TRUE if the \code{numDeriv} function \code{grad()} is
+      to be used to compute gradients when the argument \code{gr} is NULL or not supplied.}
   }
 
   The following \code{control} elements apply only to some of the methods. The list
@@ -253,26 +253,30 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   \code{fn} and \code{gr}.  Note that no other attributes of \code{par}
   are copied over. (We have not verified this as at 2009-07-29.)
 
+  There are \code{[.optimx}, \code{as.data.frame.optimx}, \code{\link{coef.optimx}} 
+  and \code{\link{summary.optimx}} methods available.
+
 }
 \value{
 
-	ansout <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
-                        itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
+   If there are \code{npar} parameters, then the result is a dataframe having one row
+   for each method for which results are reported, using the method as the row name,
+   with columns
 
+   \code{par_1, .., par_npar, value, fevals, gevals, niter, convcode, kkt1, kkt2, xtimes}
 
-  A dataframe with the following columns, each having one element (row) for each
-  each of the methods that has returned an answer. In each row the columne elements
-  give:
-  \item{par}{The best set of parameters found.}
-  \item{fvalues}{The value of \code{fn} corresponding to \code{par}.}
-  \item{method}{The name of the method used for this answer.}
-  \item{fns}{The number of calls to \code{fn}.}
-  \item{grs}{The number of calls to \code{gr}. This excludes those calls needed
+  where
+  \describe{
+  \item{par_1}{ .. }
+  \item{par_npar}{The best set of parameters found.}
+  \item{value}{The value of \code{fn} corresponding to \code{par}.}
+  \item{fevals}{The number of calls to \code{fn}.}
+  \item{gevals}{The number of calls to \code{gr}. This excludes those calls needed
     to compute the Hessian, if requested, and any calls to \code{fn} to
     compute a finite-difference approximation to the gradient.}
-  \item{itns}{For those methods where it is reported, the number of ``iterations''. See
+  \item{niter}{For those methods where it is reported, the number of ``iterations''. See
     the documentation or code for particular methods for the meaning of such counts.}
-  \item{conv}{An integer code. \code{0} indicates successful
+  \item{convcode}{An integer code. \code{0} indicates successful
     convergence. Various methods may or may not return sufficient information
 	to allow all the codes to be specified. An incomplete list of codes includes
     \describe{
@@ -288,179 +292,96 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method; see component \code{message} for further details.}
     }
   }
-  \item{KKT1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
-  \item{KKT2}{A logical value returned TRUE if the solution reported appears to have a 
+  \item{kkt1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
+  \item{kkt2}{A logical value returned TRUE if the solution reported appears to have a 
   positive-definite Hessian.}
   \item{xtimes}{The reported execution time of the calculations for the particular method.}
+  }
 
-More detail is provided in the attribute "details" to the returned answer object. 
+
+The attribute "details" to the returned answer object contains information,
+if computed, on the gradient (\code{ngatend}) and Hessian matrix (\code{nhatend}) 
+at the supposed optimum, along with the eigenvalues of the Hessian (\code{hev}), 
+as well as the \code{message}, if any, returned by the computation for each \code{method},
+which is included for each row of the \code{details}. 
 If the returned object from optimx() is \code{ans}, this is accessed 
 via the construct
     \code{attr(ans, "details")}
-This object is a list of lists, one list for each method that has been successful 
-or that has been forced by save.failures=TRUE. To get the details list for the 
-third method, we use
-    \code{attr(ans, "details")[[3]]]]}
 
-Each such list has possible elements:
-  \item{par}{ - the final parameters of the function}
-  \item{value}{ - the final value of the objective function}
-  \item{convergence}{ - a code indicating whether and/or how the method terminated}
-  \item{message}{ - a descriptive message, if one is provided}
-  \item{fevals}{ - the number of times the objective function was evaluated during the run;
-   this item has an attribute "names" that can take on the value "function"}
-  \item{gevals}{ - the number of times the gradient of the objective function was evaluated 
-   during the run; this item has an attribute "names" that can take on the value "gradient"}
-  \item{kkt1}{ - an indicator if the first order Kuhn, Karush, Tucker condition for a 
-  local minimum is satisfied. Note that we must use a tolerance to make this test, and the
-  indicator is NOT definitive.}
-  \item{kkt2}{  - an indicator if the second order Kuhn, Karush, Tucker condition for a 
-  local minimum is satisfied. Note that we must use a tolerance to make this test, and the
-  indicator is NOT definitive.}
-  \item{ngatend}{ - the gradient vector computed or estimated at termination}
-  \item{nhatend}{ - the Hessian matrix computed or estimated at termination}
-  \item{evnhatend}{ - a vector of the eigenvalues of the Hessian at termination}
-  \item{systime}{ - the system time required for execution of the method in question (named
-   in "method" below). This element has the attribute "names".}
-  \item{method}{ - The name of the method used. This has the attribute "CPU times (s)" which 
-  itself has an attribute "names" that corresponds to the "method".}
+This object is a  matrix based on a list so that if ans is the output of optimx
+then attr(ans, "details")[1, ] gives the first row and 
+attr(ans,"details")["Nelder-Mead", ] gives the Nelder-Mead row. There is 
+one row for each method that has been successful 
+or that has been forcibly saved by save.failures=TRUE. 
 
+There are also attributes
+   \describe{
+   \item{maximize}{to indicate we have been maximizing the objective}
+   \item{npar}{to provide the number of parameters, thereby facilitating easy
+        extraction of the parameters from the results data frame}
+   \item{follow.on}{to indicate that the results have been computed sequentially,
+        using the order provided by the user, with the best parameters from one
+        method used to start the next. There is an example (\code{ans9}) in 
+        the script \code{ox.R} in the demo directory of the package.}
+   }
 }
 \note{
-  \code{optimx} will work with one-dimensional \code{par}s, but the
-  default method does not work well (and will warn).  Use
-  \code{\link{optimize}} instead.
+  Most methods in \code{optimx} will work with one-dimensional \code{par}s, but such
+  use is NOT recommended. Use \code{\link{optimize}} or other one-dimensional methods instead.
 
-  There are a series of demos available. These were set up as tests, but take quite
-  a long time to execute. Once the package is loaded (via \code{require(optimx)} or
+  There are a series of demos available. Once the package is loaded (via \code{require(optimx)} or
   \code{library(optimx)}, you may see available demos via 
 
   demo(package="optimx")
 
   The demo 'brown_test' may be run with the command
   demo(brown_test, package="optimx")
+
+  The package source contains several functions that are not exported in the
+  NAMESPACE. These are 
+  \describe{
+  \item{\code{optimx.setup()}}{ which establishes the controls for a given run;}
+  \item{\code{optimx.check()}}{ which performs bounds and gradient checks on
+      the supplied parameters and functions;}
+  \item{\code{optimx.run()}}{which actually performs the optimization and post-solution
+      computations;}
+  \item{\code{scalecheck()}}{ which actually carries out a check on the relative scaling
+      of the input parameters.}
+  }
+
+Knowledgeable users may take advantage of these functions if they are carrying
+out production calculations where the setup and checks could be run once.
+
 }
 \source{
-  The code for methods \code{"Nelder-Mead"}, \code{"BFGS"} and
-  \code{"CG"} was based originally on Pascal code in Nash (1990) that was
-  translated by \code{p2c} and then hand-optimized.  Dr Nash has agreed
-  that the code can be made freely available.
 
-  The code for method \code{"L-BFGS-B"} is based on Fortran code by Zhu,
-  Byrd, Lu-Chen and Nocedal obtained from Netlib (file
-  \file{opt/lbfgs\_bcm.shar}: another version is in \file{toms/778}).
+See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{suggests}.
 
-  See documentation for \code{"nlm"} and \code{"nlminb"} for those
-  methods, package \code{"ucminf"} for the funciton of the same
-  name, and package BB for method \code{"spg"}.
 }
 \references{
-  Belisle, C. J. P. (1992) Convergence theorems for a class of simulated
-  annealing algorithms on \eqn{R^d}{Rd}. \emph{J Applied Probability},
-  \bold{29}, 885--895.
 
-   Birgin EG, Martinez JM, and Raydan M (2001): SPG: software for
-     convex-constrained optimization, \emph{ACM Transactions on Mathematical
-     Software}. ??incomplete reference??
+ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{suggests}.
 
-
-  Byrd, R. H., Lu, P., Nocedal, J. and Zhu, C.  (1995) A limited
-  memory algorithm for bound constrained optimization.
-  \emph{SIAM J. Scientific Computing}, \bold{16}, 1190--1208.
-
-  Dennis, J. E. and Schnabel, R. B. (1983) _Numerical Methods for
-     Unconstrained Optimization and Nonlinear Equations._
-     Prentice-Hall, Englewood Cliffs, NJ.
-
-  Fletcher, R. and Reeves, C. M. (1964) Function minimization by
-  conjugate gradients. \emph{Computer Journal} \bold{7}, 148--154.
-
-  Fletcher, R (1970) A new approach to variable metric algorithms,
-  \emph{Computer Journal}, \bold{13}, 317-322.
-
-  Nash, J. C. (1979, 1990) \emph{Compact Numerical Methods for
-    Computers. Linear Algebra and Function Minimisation.} Adam Hilger.
-
-  Nelder, J. A. and Mead, R. (1965) A simplex algorithm for function
-  minimization. \emph{Computer Journal} \bold{7}, 308--313.
-
-  Nocedal, J. and Wright, S. J. (1999) \emph{Numerical Optimization}.
-  Springer.
-
-  Schnabel, R. B., Koontz, J. E. and Weiss, B. E. (1985) A modular
-     system of algorithms for unconstrained minimization. _ACM Trans.
-     Math. Software_, *11*, 419-440.
-
- Varadhan, R. and Gilbert, P.D. (2009) \bold{BB}: An R Package for Solving a Large System of
-      Nonlinear Equations and for Optimizing a High-Dimensional
-      Nonlinear Objective Function. \emph{Journal of Statistical Software}, 
-      \bold{32}, 1--26.
-
- Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: \bold{optimx} for R.,
-        \emph{Journal of Statistical Software}, 43(9), 1-14.,  URL http://www.jstatsoft.org/v43/i09/.
+ Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
+    \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
+     URL http://www.jstatsoft.org/v43/i09/.
 
 }
 
 \seealso{
   \code{\link[BB]{spg}}, \code{\link{nlm}}, \code{\link{nlminb}},
   \code{\link[minqa]{bobyqa}}, \code{\link[Rcgmin]{Rcgmin}}, 
-  \code{\link[Rvmmin]{Rvmmin}}, \code{\link[ucminf]{ucminf}}.
-
+  \code{\link[Rvmmin]{Rvmmin}}, \code{\link[ucminf]{ucminf}}, 
+  \code{\link[dfoptim]{nmkb}},
+  \code{\link[dfoptim]{hjkb}}.
   \code{\link{optimize}} for one-dimensional minimization;
   \code{\link{constrOptim}} or \code{\link[BB]{spg}} for linearly constrained optimization.
 }
 
 \examples{
 require(graphics)
+cat("Note demo(ox) for extended examples\n")
 
-fr <- function(x) {   ## Rosenbrock Banana function
-    x1 <- x[1]
-    x2 <- x[2]
-    100 * (x2 - x1 * x1)^2 + (1 - x1)^2
-}
-grr <- function(x) { ## Gradient of 'fr'
-    x1 <- x[1]
-    x2 <- x[2]
-    c(-400 * x1 * (x2 - x1 * x1) - 2 * (1 - x1),
-       200 *      (x2 - x1 * x1))
-}
-ans1<-optimx(c(-1.2,1), fr)
-print(ans1)
-print(attr(ans1,"details"))
-cat("\n\n")
-ans2<-optimx(c(-1.2,1), fr, grr, method = "BFGS")
-print(ans2)
-## The next line will fail if executed because 'hessian = TRUE' no longer allowed
-# ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE)
-cat("\n\n")
-ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=1))
-print(ans4)
-cat("\n\n")
-ans5<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))
-print(ans5)
-cat("\n\n")
-ans6<-optimx(c(-1.2,1), fr, grr, method = "L-BFGS-B")
-print(ans6)
-cat("\n\n")
-
-flb <- function(x)
-    { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
-## 25-dimensional box constrained
-optimx(rep(3, 25), flb, NULL, method = "L-BFGS-B",
-      lower=rep(2, 25), upper=rep(4, 25)) # par[24] is *not* at boundary
-
-## "wild" function , global minimum at about -15.81515
-fw <- function (x)
-    10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
-plot(fw, -50, 50, n=1000, main = "optim() minimising 'wild function'")
-
-## Suppressed for optimx() ans7 <- optimx(50, fw, method="SANN",
-##             control=list(maxit=20000, temp=20, parscale=20))
-## ans7
-## Now improve locally {typically only by a small bit}:
-## newpar<-unlist(ans7$par) # NOTE: you need to unlist the parameters as optimx() has multiple outputs
-##(r2 <- optimx(newpar, fw, method="BFGS"))
-##points(r2$par, r2$value, pch = 8, col = "red", cex = 2)
 
 ## Show multiple outputs of optimx using all.methods
 # genrose function code
@@ -503,59 +424,25 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 }
 
 startx<-4*seq(1:10)/3.
-ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
-print(ans8)
+ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
+   control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
+ans8
+ans8[, "gevals"]
+ans8["spg", ]
+summary(ans8, par.select = 1:3)
+summary(ans8, order = value)[1, ] # show best value
+head(summary(ans8, order = value)) # best few
+## head(summary(ans8, order = "value")) # best few -- alternative syntax
 
-get.result(ans8, attribute="grs")
-get.result(ans8, method="spg")
+## order by value.  Within those values the same to 3 decimals order by fevals.
+## summary(ans8, order = list(round(value, 3), fevals), par.select = FALSE)
+summary(ans8, order = "list(round(value, 3), fevals)", par.select = FALSE)
 
+## summary(ans8, order = rownames, par.select = FALSE) # order by method name
+summary(ans8, order = "rownames", par.select = FALSE) # same
 
-startx<-4*seq(1:10)/3.
-cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf\n")
-ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
-             itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
-print(ans9)
-
-startx<-4*seq(1:10)/3.
-cat("200 steps NM is not enough to terminate\n")
-ans10<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("Nelder-Mead"),
-             itnmax=c(200), control=list(trace=0, save.failures=FALSE), gs=10)
-cat("The answer should be NULL\n")
-print(ans10)
-
-
-startx<-4*seq(1:10)/3.
-cat("Try getting hessian but not kkt tests\n")
-ans11<-optimx(startx,fn=genrose.f,gr=genrose.g, hessian=TRUE,  
-	control=list(all.methods=TRUE, trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
-print(ans11)
-cat("Method 7 should be Rvmmin\n")
-print(attr(ans11,"details")[7])
-
-
-genrose.h <- function(x, gs=NULL) { ## compute Hessian
-   if(is.null(gs)) { gs=100.0 }
-	n <- length(x)
-	hh<-matrix(rep(0, n*n),n,n)
-	for (i in 2:n) {
-		z1<-x[i]-x[i-1]*x[i-1]
-		z2<-1.0-x[i]
-                hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
-                hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
-                hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
-                hh[i-1,i]<-hh[i-1,i]-4.0*gs*x[i-1]
-	}
-        return(hh)
-}
-
-
-startx<-4*seq(1:10)/3.
-cat("Use analytic hessian and no KKT tests\n")
-ans12<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
-      control=list(trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
-print(ans12)
-print(attr(ans12,"details"))
-
+summary(ans8, order = NULL, par.select = FALSE) # use input order
+## summary(ans8, par.select = FALSE) # same
 
 }
 \keyword{nonlinear}

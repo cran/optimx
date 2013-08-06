@@ -5,9 +5,13 @@ chen_test       Test optimx on the Chen function
 chenlog_test       Test optimx on the Chen function (log-transformed parameters)
 froth_test       Test optimx on the Freudenstein and Roth function
 maxtestJN       Test optimx with maximizing rather than minimizing
+onepar_test     Test optimx with a function of one parameter
 poissmix_test       Test optimx on a Poisson mixture problem
 rosbkext_test       Test optimx on the Rosenbrock function (extended)
 sc2_test       Test optimx on the SC2 function
+unitTests      Unit tests
+unit1          Unit test with 1 parameter problem
 trig_test       Test optimx on the trigonometric test function
 valley_test       Test optimx on the valley function
 vmmix_test       Test optimx on the mixture function
+ox               Try interactivity
