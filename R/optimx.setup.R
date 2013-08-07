@@ -120,7 +120,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   optcfg$have.bounds <- have.bounds
 
   # Check that we have the functions we need
-   if (! require(numDeriv, quietly=TRUE) ) stop("Install package `numDeriv'", call.=FALSE)
+#   if (! require(numDeriv, quietly=TRUE) ) stop("Install package `numDeriv'", call.=FALSE)
 
   # List of methods in base or stats, namely those in optim(), nlm(), nlminb()
   bmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb")
@@ -131,28 +131,29 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   allmeth <- bmeth
 # Now make sure methods loaded
    allmeth <- bmeth # start with base methods
-   testload <- suppressWarnings(require(BB, quietly=TRUE))
+   testload <- TRUE # This is a temporary fix for NAMESPACE changes in R 3.1.2
+#   testload <- suppressWarnings(require(BB, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"spg")
    else if (ctrl$trace>0) { warning("Package `BB' Not installed", call.=FALSE) }
 
-   testload <- suppressWarnings(require(ucminf, quietly=TRUE))
+#   testload <- suppressWarnings(require(ucminf, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"ucminf")
    else if (ctrl$trace>0) { warning("Package `ucminf' Not installed", call.=FALSE) }
    
-   testload <- suppressWarnings(require(Rcgmin, quietly=TRUE))
+#   testload <- suppressWarnings(require(Rcgmin, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"Rcgmin")
    else if (ctrl$trace>0) { warning("Package `Rcgmin' Not installed", call.=FALSE) }
    
-   testload <- suppressWarnings(require(Rvmmin, quietly=TRUE))
+#   testload <- suppressWarnings(require(Rvmmin, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"Rvmmin")
    else if (ctrl$trace>0) { warning("Package `Rvmmin' Not installed", call.=FALSE) }
    
-   testload <- suppressWarnings(require(minqa, quietly=TRUE))
+#   testload <- suppressWarnings(require(minqa, quietly=TRUE))
    if (testload) { allmeth<-c(allmeth, "newuoa", "bobyqa")  }
    else if (ctrl$trace>0) { warning("Package `minqa' (for uobyqa, newuoa, and bobyqa) Not installed", call.=FALSE) }
    # leave out uobyqa in CRAN version 120421 (from earlier 1104 change)
 
-   testload <- suppressWarnings(require(dfoptim, quietly=TRUE))
+#   testload <- suppressWarnings(require(dfoptim, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"nmkb", "hjkb")
    else if (ctrl$trace>0) { warning("Package `dfoptim' Not installed", call.=FALSE) }
    

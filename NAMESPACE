@@ -1,3 +1,15 @@
+import(
+  "numDeriv",
+  "ucminf",
+  "BB",
+  "Rcgmin",
+  "Rvmmin",
+  "minqa",
+  "setRNG",
+  "dfoptim",
+  "svUnit"
+)
+
 export(
   "optimx",
   "coef<-"

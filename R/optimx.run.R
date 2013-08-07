@@ -20,6 +20,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   for (i in 1:nmeth) { # loop over the methods
       meth <- method[i] # extract the method name
       conv <- -1 # indicate that we have not yet converged
+#      cat("optimx.run with method ",meth," ctrl:")
+#      tmp <- readline("CONTINUE")
+#     print(ctrl)
       # 20100608 - take care of polyalgorithms
       if (! is.null(itnmax) ) {
 	if (length(itnmax) == 1) {ctrl$maxit <- itnmax} # Note we will execute this FIRST
@@ -53,8 +56,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       if (meth=="Nelder-Mead" || meth == "BFGS" || meth == "L-BFGS-B" || meth == "CG" || meth == "SANN") {
 #       if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now 
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
+
+#        cat("optim() par:")
+#        print(par)
+
+
         time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
-                method=meth, control=mcontrol, ...), silent=TRUE))[1]
+                method=meth, control=mcontrol, ...)))[1]
         # The time is the index=1 element of the system.time for the process, 
         # which is a 'try()' of the regular optim() function
         if (class(ans)[1] != "try-error") { 
@@ -427,12 +435,29 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
          mcontrol$fnscale<-NULL
+#         cat("nmkb mcontrol\n")
+#        print(mcontrol)
+#        cat("nmkb par:")
+#        print(par)
+#         if (have.bounds) {
+#            time <- system.time(ans <- try(nmkb(par=par, fn=ufn, lower = lower, 
+#              upper = upper, control=mcontrol, ...), silent=TRUE))[1]
+#         } else {
+#            time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
+#              control=mcontrol, ...), silent=TRUE))[1]
+#         }
          if (have.bounds) {
             time <- system.time(ans <- try(nmkb(par=par, fn=ufn, lower = lower, 
-              upper = upper, control=mcontrol, ...), silent=TRUE))[1]
+              upper = upper, control=mcontrol, ...)))[1]
          } else {
+## this worked when control=mcontrol did not
+##            time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
+##              control=list(trace=TRUE), ...)))[1]
+## as.list did not work
+#           print(str(mcontrol))
+#           print(class(mcontrol))
             time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
-              control=mcontrol, ...), silent=TRUE))[1]
+              control=as.pairlist(mcontrol), ...)))[1]
          }
          if (class(ans)[1] != "try-error") {
             ans$convcode <- ans$convergence
@@ -537,15 +562,15 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
           if ((ctrl$kkt || hessian) && (ans$convcode != 9999)) {
               if (ctrl$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
               if (!is.null(uhess)){ # check if we have analytic hessian 
-                 nhatend<-try(uhess(ans$par, ...), silent=TRUE)
+                 nhatend<-try(uhess(ans$par, ...))
                  if (class(nhatend) != "try-error") {
                     hessOK<-TRUE
                  }
               } else {
                  if (is.null(ugr)) {
-                     nhatend<-try(hessian(ufn, ans$par, ...), silent=TRUE) # change 20100711
+                     nhatend<-try(hessian(ufn, ans$par, ...)) # change 20100711
                  } else {
-                     nhatend<-try(jacobian(ugr,ans$par, ...), silent=TRUE) # change 20100711
+                     nhatend<-try(jacobian(ugr,ans$par, ...)) # change 20100711
                  } # numerical hessian at "solution"
                  if (class(nhatend) != "try-error") {
                     hessOK<-TRUE
@@ -557,9 +582,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
           if ((hessian || ctrl$kkt) && (ans$convcode != 9999)) {# avoid test when method failed
              if (ctrl$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
              if (is.null(ugr)) {
-                 ngatend<-try(grad(ufn, ans$par, ...), silent=TRUE) # change 20100711
+                 ngatend<-try(grad(ufn, ans$par, ...)) # change 20100711
              } else {
-                 ngatend<-try(ugr(ans$par, ...), silent=TRUE) # Gradient at solution # change 20100711
+                 ngatend<-try(ugr(ans$par, ...)) # Gradient at solution # change 20100711
              }
              if (class(ngatend) != "try-error") gradOK<-TRUE # 100215 had == rather than != here
              if ( (! gradOK) && (ctrl$trace>0)) cat("Gradient computation failure!\n") 
@@ -587,7 +612,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                       if (ctrl$dowarn) warning("Hessian forced symmetric", call. = FALSE)
                       nhatend <- 0.5 * (t(nhatend) + nhatend)
                    }  # end symmetry test
-                   hev<- try(eigen(nhatend)$values, silent=TRUE) # 091215 use try in case of trouble
+                   hev<- try(eigen(nhatend)$values) # 091215 use try in case of trouble
                    if (ctrl$kkt){
    	              if (class(hev) != "try-error") {# answers are OK, check Hessian properties
                          if (any(is.complex(hev))){

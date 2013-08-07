@@ -366,6 +366,10 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
      URL http://www.jstatsoft.org/v43/i09/.
 
+ Nash JC (2014). On Best Practice Optimization Methods in R., 
+        \emph{Journal of Statistical Software}, 60(2), 1-14.,
+        URL http://www.jstatsoft.org/v60/i02/.
+
 }
 
 \seealso{
