@@ -12,10 +12,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            usenumDeriv=optcfg$usenumDeriv, ...)
   }
   optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
-  if (! is.null(control$trace) && control$trace > 1) {
-    cat("optcfg:")
-    print(optcfg)
-  }
+#  cat("optcfg:")
+#  print(optcfg)
   ansout <- optimx.run(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower, upper,
             optcfg$method, itnmax, hessian, optcfg$ctrl, ...)
   details <- attr(ansout, "details")
@@ -37,9 +35,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     ansout[ , "kkt1"] <- as.logical(ansout[ , "kkt1"])
     ansout[ , "kkt2"] <- as.logical(ansout[ , "kkt2"])
 
-  answer <- structure(ansout, details = details, maximize = optcfg$ctrl$maximize,
+  structure(ansout, details = details, maximize = optcfg$ctrl$maximize,
             npar = optcfg$npar, follow.on=optcfg$ctrl$follow.on,
             class = c("optimx", "data.frame"))
-  answer # requested by Gabor 1408
 } ## end of optimx
 

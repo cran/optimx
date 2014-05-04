@@ -103,11 +103,17 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      optcfg$ctrl$maximize <- FALSE # ensure defined
   } # define maximize if NULL
   optcfg$usenumDeriv<-FALSE # JN130703
-  if (is.null(gr) && ctrl$dowarn && ctrl$usenumDeriv) {
-     warning("Replacing NULL gr with 'numDeriv' approximation")
+  if (is.null(gr) && ctrl$usenumDeriv) {
+     if (ctrl$dowarn) warning("Replacing NULL gr with 'numDeriv' approximation")
      optcfg$usenumDeriv<-TRUE
      ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
         tryg<-grad(userfn, par, ...)
+     } # Already have negation in ufn if maximizing
+  }
+  if (is.character(gr)) {
+     if (ctrl$dowarn) warning("Replacing NULL gr with '",gr,"' approximation")
+     ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
+        tryg<- do.call(gr, list(par, userfn, ...))
      } # Already have negation in ufn if maximizing
   }
   optcfg$ufn <- ufn
@@ -131,35 +137,37 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   allmeth <- bmeth
 # Now make sure methods loaded
    allmeth <- bmeth # start with base methods
-   testload <- TRUE # This is a temporary fix for NAMESPACE changes in R 3.1.2
-#   testload <- suppressWarnings(require(BB, quietly=TRUE))
+   testload <- suppressWarnings(require(BB, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"spg")
    else if (ctrl$trace>0) { warning("Package `BB' Not installed", call.=FALSE) }
 
-#   testload <- suppressWarnings(require(ucminf, quietly=TRUE))
+   testload <- suppressWarnings(require(ucminf, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"ucminf")
    else if (ctrl$trace>0) { warning("Package `ucminf' Not installed", call.=FALSE) }
    
-#   testload <- suppressWarnings(require(Rcgmin, quietly=TRUE))
+   testload <- suppressWarnings(require(Rcgmin, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"Rcgmin")
    else if (ctrl$trace>0) { warning("Package `Rcgmin' Not installed", call.=FALSE) }
    
-#   testload <- suppressWarnings(require(Rvmmin, quietly=TRUE))
+   testload <- suppressWarnings(require(Rvmmin, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"Rvmmin")
    else if (ctrl$trace>0) { warning("Package `Rvmmin' Not installed", call.=FALSE) }
    
-#   testload <- suppressWarnings(require(minqa, quietly=TRUE))
+   testload <- suppressWarnings(require(minqa, quietly=TRUE))
    if (testload) { allmeth<-c(allmeth, "newuoa", "bobyqa")  }
    else if (ctrl$trace>0) { warning("Package `minqa' (for uobyqa, newuoa, and bobyqa) Not installed", call.=FALSE) }
    # leave out uobyqa in CRAN version 120421 (from earlier 1104 change)
 
-#   testload <- suppressWarnings(require(dfoptim, quietly=TRUE))
+   testload <- suppressWarnings(require(dfoptim, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"nmkb", "hjkb")
    else if (ctrl$trace>0) { warning("Package `dfoptim' Not installed", call.=FALSE) }
    
    bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "nmkb", "hjkb")
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
+  if (! ctrl$all.methods) { # Changes method vector!
+      if ((length(method) == 1) && (method=="all"))ctrl$all.methods <- TRUE
+  }             
   if (ctrl$all.methods) { # Changes method vector!
 	method<-allmeth
         if (ctrl$trace>0) {
@@ -200,5 +208,3 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   optcfg$method <- method
   optcfg # return the structure
 } ## end of optimx.setup
-
-
