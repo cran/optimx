@@ -1,7 +1,7 @@
 ## optimx-package.R 
 ## This file contains support routines (methods) for the optimx() function
 ##################################################################
-summary.optimx <- function(object, order = NULL, par.select = TRUE, ...) {
+summary.opm <- summary.optimx <- function(object, order = NULL, par.select = TRUE, ...) {
 	
 	# internally object is referred to as x and par.select as par
 	x <- object
@@ -62,7 +62,7 @@ summary.optimx <- function(object, order = NULL, par.select = TRUE, ...) {
 }
 
 ##################################################################
-coef.optimx <- function(object, ...) {
+coef.opm <- coef.optimx <- function(object, ...) {
 	npar <- attr(object, "npar")
 	ix <- seq_len(npar)
         cc <- object[, ix]
@@ -76,14 +76,14 @@ coef.optimx <- function(object, ...) {
 
 "coef<-" <- function(x, value) UseMethod("coef<-")
 
-"coef<-.optimx" <- function(x, value) {
+"coef<-.opm" <- "coef<-.optimx" <- function(x, value) {
 	npar <- attr(x, "npar")
 	ix <- seq_len(npar)
 	structure(cbind(value, x[, -ix, drop = FALSE]), 
 		npar = NCOL(value),
 		class = class(x))
 }
-"[.optimx" <- function(x, ...) {
+"[.opm" <- "[.optimx" <- function(x, ...) {
 	xx <- NextMethod()
 	if (is.data.frame(xx)) {
 		details <- attr(x, "details")
@@ -99,12 +99,15 @@ coef.optimx <- function(object, ...) {
 	} else xx
 }
 
-as.data.frame.optimx <- function(x, row.names = NULL, optional = FALSE, ...) {
+##################################################################
+as.data.frame.opm <- as.data.frame.optimx <- function(x, row.names = NULL, optional = FALSE, ...) {
 	result <- do.call(data.frame, as.list(x))
 	rownames(result) <- if (is.null(row.names)) rownames(x) else row.names
 	result # NOTE: seems "details" are stripped away
 }
+
 ##################################################################
+
 scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	# a function to check the initial parameters and bounds for inputs to optimization codes
 	# Arguments:
@@ -145,4 +148,3 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 }
 # -------------- end scalecheck ----------------- #
 #################################################################
-

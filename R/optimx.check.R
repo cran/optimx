@@ -41,7 +41,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
             #   }
                 if (lower[i]>par[i]) {bstate[i]<-" Out of Bounds LOW" } else { bstate[i]<-" Out of Bounds HIGH " }
             } # end if in bounds
-            if (ctrl$trace > 0) cat("par[",i,"]: ",lower[i],"  <?",par[i],"  <?",upper[i],"  ",bstate,"\n")
+            if (ctrl$trace > 0) cat("par[",i,"]: ",lower[i],"  <?",par[i],"  <?",upper[i],"  ",bstate[i],"\n") # fix to add index 150604
           } # end of for loop over parameter vector elements
 	  if (infeasible) { ## ?? maybe don't want to stop ??
         	stop("Infeasible point, no further tests")

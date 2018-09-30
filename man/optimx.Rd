@@ -22,7 +22,24 @@
   conjugate-gradient algorithms as well as box-constrained optimization 
   via L-BFGS-B. Because SANN does not return a meaningful convergence code
   (conv), optimx() does not call the SANN method.
+  
+  Note that package \code{optimr} allows solvers to be called individually
+  by the \code{optim()} syntax, with the \code{parscale} 
+  control to scale parameters applicable to all methods. However, 
+  running multiple methods, or using the \code{follow.on} capability
+  has been moved to separate routines in the \code{optimr} package.
+  
+  Cautions: 
+  
+  1) Using some control list options with different or multiple methods 
+  may give unexpected results. 
+  
+  2) Testing the KKT conditions can take much longer than solving the
+  optimization problem, especially when the number of parameters is large
+  and/or analytic gradients are not available. Note that the default for
+  the control \code{kkt} is TRUE.
 }
+
 \usage{
 optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
@@ -255,6 +272,13 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
   There are \code{[.optimx}, \code{as.data.frame.optimx}, \code{\link{coef.optimx}} 
   and \code{\link{summary.optimx}} methods available.
+  
+  Note: Package \code{optimr} is a derivative of this package. It was developed
+  initially to overcome maintenance difficulties with the current package 
+  related to avoiding confusion if some multiple options were specified together,
+  and to allow the \code{optim()} function syntax to be used consistently, 
+  including the \code{parscale} control. However, this package does perform
+  well, and is called by a number of popular other packages.
 
 }
 \value{
@@ -366,12 +390,16 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
      URL http://www.jstatsoft.org/v43/i09/.
 
+ Nash JC (2014). On Best Practice Optimization Methods in R., 
+        \emph{Journal of Statistical Software}, 60(2), 1-14.,
+        URL http://www.jstatsoft.org/v60/i02/.
+
 }
 
 \seealso{
   \code{\link[BB]{spg}}, \code{\link{nlm}}, \code{\link{nlminb}},
-  \code{\link[minqa]{bobyqa}}, \code{\link[Rcgmin]{Rcgmin}}, 
-  \code{\link[Rvmmin]{Rvmmin}}, \code{\link[ucminf]{ucminf}}, 
+  \code{\link[minqa]{bobyqa}}, 
+  \code{\link[ucminf]{ucminf}}, 
   \code{\link[dfoptim]{nmkb}},
   \code{\link[dfoptim]{hjkb}}.
   \code{\link{optimize}} for one-dimensional minimization;

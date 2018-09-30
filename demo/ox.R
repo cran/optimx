@@ -1,4 +1,5 @@
 ## ox - interactive example
+if(!require("optimx"))stop("this test requires package optimx.")
 
 require(graphics)
 

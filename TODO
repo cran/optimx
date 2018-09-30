@@ -1,0 +1,16 @@
+Do we want to introduce unit tests as standard?
+   Clean up unit tests in inst/unittests and make sure that they work
+
+Look for ?? anywhere
+
+Change output of optimr to return extra information in attributes
+   - gradient
+   - hessian
+   - counts of these
+  NOT included at 180710. 
+  It will require new code in EVERY optimizer, but might be worth it.
+  Or add an optimra() function to develop this.
+
+
+
+
