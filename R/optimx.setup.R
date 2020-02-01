@@ -177,7 +177,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   # avoid duplicates here
   # 2011-1-17 JN: to set L-BFGS-B
   method <- try(unique(match.arg(method, allmeth, several.ok=TRUE) ),silent=TRUE)
-  if (class(method)=="try-error") {
+  if (inherits(method,"try-error")) {
      warning("optimx: No match to available methods")
      method<-NULL
      nmeth<-0

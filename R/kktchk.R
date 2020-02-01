@@ -97,7 +97,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    # Decided to only provide "constrained" ones
 #   hev<- try(eigen(nHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
 #                                              # 20100711 silent
-#   if (class(hev) != "try-error") {
+#   if (!inherits(hev, "try-error")) {
 #     if (control$trace > 0) {
 #        cat("Hessian eigenvalues of unconstrained Hessian:\n")
 #        print(hev) # ?? no check for errors
@@ -115,7 +115,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    if (nfree > 0) {
      phev<- try(eigen(pHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
                                               # 20100711 silent
-     if (class(phev) != "try-error") {
+     if (! inherits(phev,"try-error")) {
         if (control$trace > 0) {
           cat("Hessian eigenvalues of constrained Hessian:\n")
           print(phev) # ?? no check for errors

@@ -29,6 +29,15 @@ NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
+VERSION 2020-01-18
+      o This version does not call some non-CRAN packages.
+
+VERSION 2019-12-02
+      o Replaced all instances of tests on class() with inherits()
+      o Replaced calls to lbfgsb3 package with those to lbfgsb3c,
+        and removed calls to the lbfgsb3() function
+      o Needed to set fval to NA in fnchk when length > 1
+
 VERSION 2018-07-10
       o Added proptimr() compact display of result of optimr
       o Some minor changes to vignettes and to message (msg) output for 

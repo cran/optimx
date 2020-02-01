@@ -125,7 +125,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     if (trace > 0) {
         cat("Initial function value=", f, "\n")
     }
-    if (class(f) == "try-error") {
+    if (inherits(f, "try-error")) {
         msg <- "Initial point is infeasible."
         if (trace > 0) 
             cat(msg, "\n")

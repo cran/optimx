@@ -79,6 +79,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
       if (length(fval)>1) { # added 120411
         excode <- -4
         msg <- "Function evaluation returns a vector not a scalar"
+        fval <- NA # and force to NA to control possible later actions
         infeasible <- TRUE
         if (trace > 0) cat(msg,"\n")
       }
@@ -87,6 +88,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
    if (is.list(fval)) {
       excode <- -4
       msg <- "Function evaluation returns a list not a scalar"
+        fval <- NA # and force to NA to control possible later actions
       infeasible <- TRUE
       if (trace > 0) cat(msg,"\n")
    }
@@ -94,6 +96,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
    if (is.matrix(fval)) {
       excode <- -4
       msg <- "Function evaluation returns a matrix list not a scalar"
+      fval <- NA # and force to NA to control possible later actions
       infeasible <- TRUE
       if (trace > 0) cat(msg,"\n")
    }
@@ -101,6 +104,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
    if (is.array(fval)) {
       excode <- -4
       msg <- "Function evaluation returns an array not a scalar"
+      fval <- NA # and force to NA to control possible later actions
       infeasible <- TRUE
       if (trace > 0) cat(msg,"\n")
    }
@@ -108,6 +112,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
    if ((length(fval)!=1) && !(is.vector(fval))) { #this may never get executed
       excode <- -4
       msg <- "Function returned not length 1, despite not vector, matrix or array"
+      fval <- NA # and force to NA to control possible later actions
       infeasible <- TRUE
       if (trace > 0) cat(msg,"\n")
    }
@@ -115,6 +120,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
    if ( ! (is.numeric(fval)) ) {
       excode <- -1 
       msg <- "Function evaluation returned non-numeric value"
+      fval <- NA # and force to NA to control possible later actions
       infeasible <- TRUE
       if (trace > 0) cat(msg,"\n")
    }

@@ -50,7 +50,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
         # Check if function can be computed
         firsttry<-try(finit<-ufn(par, ...), silent=TRUE ) # 20100711
         # Note: This incurs one EXTRA function evaluation because optimx is a wrapper for other methods
-        if (class(firsttry) == "try-error") {
+        if (inherits(firsttry, "try-error")) {
     	   infeasible <- TRUE
            stop("Cannot evaluate function at initial parameters")
         }

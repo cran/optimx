@@ -1,4 +1,4 @@
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 cyq.f <- function (x) {
   rv<-cyq.res(x)
   f<-sum(rv*rv)
@@ -97,7 +97,7 @@ xtabs(formula = nf ~ acctol + eps, data=resdf)
 xtabs(formula = ng ~ acctol + eps, data=resdf)
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 sq<-function(x, exfs=1){
   nn<-length(x)
   yy<-(1:nn)*pi/4
@@ -136,7 +136,7 @@ xtabs(formula = nf ~ exfs + eps, data=resdf)
 # Display the number of gradient evaluations used for different tolerances
 xtabs(formula = ng ~ exfs + eps, data=resdf)
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 ssq.f<-function(x){
    nn<-length(x)
    yy <- 1:nn
@@ -173,7 +173,7 @@ xtabs(formula = nf ~ acctol + eps, data=resdf)
 # Display the number of gradient evaluations used for different tolerances
 xtabs(formula = ng ~ acctol + eps, data=resdf)
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 ## hobbstarts.R -- starting points for Hobbs problem 
 hobbs.f<- function(x){ # # Hobbs weeds problem -- function
     if (abs(12*x[3]) > 500) { # check computability
@@ -257,7 +257,7 @@ cat("optim:BFGS no. of successes=",nsuccO,"  propn=",nsuccO/nrun,"\n")
 fgc <- data.frame(fRvm, foptim, gRvm, goptim)
 summary(fgc)
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 nsuccR <- 0
 nsuccO <- 0
 for (irun in 1:nrun) {
@@ -286,7 +286,7 @@ cat("optim:BFGS no. of successes=",nsuccO,"  propn=",nsuccO/nrun,"\n")
 fgc <- data.frame(fRvm, foptim, gRvm, goptim)
 summary(fgc)
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 bt.f<-function(x){
  sum(x*x)
 }
@@ -303,7 +303,7 @@ ans <- Rvmmin(xx, bt.f, bt.g, lower=lower, upper=upper, bdmsk=bdmsk)
 ans
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 sq.f<-function(x){
    nn<-length(x)
    yy<-1:nn

@@ -74,7 +74,7 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
     else {
         gn <- try(gr(par, ...), silent = TRUE)  # Gradient at solution # change 20100711
     }
-    if (class(gn) != "try-error") 
+    if (inherits(gn,"try-error")) 
         gradOK <- TRUE  
     if (!gradOK && ctrl$stoponerror) 
         stop("Gradient computations failure!")
@@ -97,7 +97,7 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
             if (ctrl$ktrace > 0) 
                 cat("is.null(gr) is TRUE use numDeriv hessian()\n")  # ???
             Hn <- try(hessian(fn, par, ...), silent = TRUE)  # change 20100711
-            if (class(Hn) == "try-error") {
+            if (inherits(Hn, "try-error")) {
                 if (ctrl$stoponerror) 
                   stop("Unable to compute Hessian using numDeriv::hessian")
                 # hessOK still FALSE
@@ -108,7 +108,7 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
             if (ctrl$ktrace > 0) 
                 cat("is.null(gr) is FALSE use numDeriv jacobian()\n")  # ???
             tHn <- try(Hn <- jacobian(gr, par, ...), silent = TRUE)  # change 20100711
-            if (class(tHn) == "try-error") {
+            if (inherits(tHn,"try-error")) {
                 if (ctrl$stoponerror) 
                   stop("Unable to compute Hessian using numderiv::jacobian")
                 if (ctrl$ktrace > 0) 
@@ -143,7 +143,7 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
         if (ctrl$ktrace > 0) 
             cat("is.null(hess) is FALSE -- trying hess()\n")  # ???
         Hn <- try(hess(par, ...), silent = TRUE)  # change 20110222
-        if (class(Hn) == "try-error") {
+        if (inherits(Hn, "try-error")) {
             if (ctrl$stoponerror) 
                 stop("Hessian evaluation with function hess() failed")
             if (ctrl$ktrace > 0) 

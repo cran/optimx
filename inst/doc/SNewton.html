@@ -803,7 +803,7 @@ t1nlmo &lt;- optimr(x0, wood.f, wood.g, hess=wood.h, method=&quot;nlm&quot;, con
 proptimr(t1nlmo)
 </code></pre>
 
-<pre><code>## Result  t1nlmo   proposes optimum function value = 1.004943e-16  at parameters
+<pre><code>## Result  t1nlmo   proposes optimum function value = 1.00494e-16  at parameters
 ## [1] 1 1 1 1
 ## After  NA  fn evals, and  335  gr evals
 ## Termination code is  0 : nlm: Convergence indicator (code) =  1
@@ -983,8 +983,8 @@ proptimr(sol50pi)
 </code></pre>
 
 <pre><code>## Result  sol50pi   proposes optimum function value = 6.108742e-29  at parameters
-##  [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-## [36] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+## [39] 1 1 1 1 1 1 1 1 1 1 1 1
 ## After  145  fn evals, and  145  gr evals
 ## Termination code is  92 : No progress before linesearch!
 ## ---------------------------------------
@@ -1009,8 +1009,8 @@ proptimr(sol50pim)
 </code></pre>
 
 <pre><code>## Result  sol50pim   proposes optimum function value = 1.528418e-30  at parameters
-##  [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-## [36] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+## [39] 1 1 1 1 1 1 1 1 1 1 1 1
 ## After  157  fn evals, and  152  gr evals
 ## Termination code is  0 : snewtonm: Normal exit
 ## ---------------------------------------
@@ -1147,7 +1147,7 @@ print(solx0)
 ## [1] 2.587277
 ## 
 ## $grad
-## [1]  5.101475e-14 -1.320055e-13  6.343726e-11
+## [1] -4.718448e-16  2.220446e-15 -3.979039e-13
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
@@ -1157,23 +1157,23 @@ print(solx0)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 501
+## [1] 9
 ## 
 ## $counts$nfn
-## [1] 501
+## [1] 9
 ## 
 ## $counts$ngr
-## [1] 501
+## [1] 9
 ## 
 ## $counts$nhess
-## [1] 500
+## [1] 9
 ## 
 ## 
 ## $convcode
-## [1] 1
+## [1] 92
 ## 
 ## $message
-## [1] &quot;Snewton - no msg&quot;
+## [1] &quot;No progress before linesearch!&quot;
 </code></pre>
 
 <pre><code class="r">print(eigen(solx0$Hess)$values)
@@ -1196,7 +1196,7 @@ print(solx0a)
 ## [1] 2.587277
 ## 
 ## $grad
-## [1] -1.071365e-14  2.819966e-14 -1.364242e-11
+## [1] -4.718448e-16  2.220446e-15 -3.979039e-13
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
@@ -1206,16 +1206,16 @@ print(solx0a)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 13
+## [1] 9
 ## 
 ## $counts$nfn
-## [1] 13
+## [1] 9
 ## 
 ## $counts$ngr
-## [1] 13
+## [1] 9
 ## 
 ## $counts$nhess
-## [1] 13
+## [1] 9
 ## 
 ## 
 ## $convcode
@@ -1249,7 +1249,7 @@ print(solx1s)
 ## [1] 2.587277
 ## 
 ## $grad
-## [1]  4.268808e-14 -1.088019e-13  5.439915e-11
+## [1] -3.858025e-14  9.892087e-14 -4.888534e-11
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
@@ -1259,23 +1259,23 @@ print(solx1s)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 22
+## [1] 501
 ## 
 ## $counts$nfn
-## [1] 31
+## [1] 510
 ## 
 ## $counts$ngr
-## [1] 22
+## [1] 501
 ## 
 ## $counts$nhess
-## [1] 22
+## [1] 500
 ## 
 ## 
 ## $convcode
-## [1] 92
+## [1] 1
 ## 
 ## $message
-## [1] &quot;No progress before linesearch!&quot;
+## [1] &quot;Snewton - no msg&quot;
 </code></pre>
 
 <pre><code class="r">print(eigen(solx1s$Hess)$values)
@@ -1295,7 +1295,7 @@ print(solx1m)
 ## [1] 2.587277
 ## 
 ## $grad
-## [1]  4.268808e-14 -1.088019e-13  5.439915e-11
+## [1] -3.858025e-14  9.892087e-14 -4.888534e-11
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
@@ -1305,23 +1305,23 @@ print(solx1m)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 22
+## [1] 501
 ## 
 ## $counts$nfn
-## [1] 31
+## [1] 510
 ## 
 ## $counts$ngr
-## [1] 22
+## [1] 501
 ## 
 ## $counts$nhess
-## [1] 22
+## [1] 500
 ## 
 ## 
 ## $convcode
-## [1] 92
+## [1] 1
 ## 
 ## $message
-## [1] &quot;No progress before linesearch!&quot;
+## [1] &quot;Snewton - no msg&quot;
 </code></pre>
 
 <pre><code class="r">print(eigen(solx1m$Hess)$values)
@@ -1411,7 +1411,7 @@ print(solx3m)
 ## [1] 2.587277
 ## 
 ## $grad
-## [1] -2.675637e-14  6.739054e-14 -3.473133e-11
+## [1] -4.440892e-14  1.003642e-13 -5.542233e-11
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
@@ -1421,16 +1421,16 @@ print(solx3m)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 49
+## [1] 52
 ## 
 ## $counts$nfn
-## [1] 48
+## [1] 51
 ## 
 ## $counts$ngr
-## [1] 28
+## [1] 29
 ## 
 ## $counts$nhess
-## [1] 28
+## [1] 29
 ## 
 ## 
 ## $convcode

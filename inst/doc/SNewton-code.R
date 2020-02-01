@@ -1,4 +1,4 @@
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 x0<-c(1,2,3,4)
 fnt <- function(x, fscale=10){
   yy <- length(x):1
@@ -57,7 +57,7 @@ if (class(tst) == "try-error"){
 } else { proptimr(t1nlminbo) }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 require(optimx)
 #Rosenbrock banana valley function
 f <- function(x){
@@ -109,7 +109,7 @@ if (class(tst) == "try-error"){
 
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 #Example: Wood function
 #
 wood.f <- function(x){
@@ -172,7 +172,7 @@ if (class(tst) == "try-error"){
     cat("try-error on attempt to run nlminb in optimr()\n")
 } else { proptimr(t1nlminbo) }
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 # genrosa function code -- attempts to match the rosenbrock at gs=100 and x=c(-1.2,1)
 genrosa.f<- function(x, gs=NULL){ # objective function
 ## One generalization of the Rosenbrock banana valley function (n parameters)
@@ -237,7 +237,7 @@ proptimr(sol50pim)
 hhm <- genrosa.h(sol50pim$par, gs=10)
 print(eigen(hhm)$values)
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------
 ## Optimization test function HOBBS
 ## ?? refs (put in .doc??)
 ## Nash and Walker-Smith (1987, 1989) ...

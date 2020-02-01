@@ -79,7 +79,7 @@ trace <- control$trace # convenience
     H<-hess(xb,...)
     nh <- nh + 1
     d<-try(solve(H, -grd))
-    if (class(d) == "class-error") {
+    if (inherits(d, "try-error")) {
           stop("Failure of default solve of Newton equations")
     }
     if (trace > 2) {
@@ -100,7 +100,7 @@ trace <- control$trace # convenience
     }
     fval <- try(fn(xnew, ...))
     nf <- nf + 1
-    if (class(fval)[1] == "try-error") stop("snewton: function evaluation error")
+    if (inherits(fval, "try-error")) stop("snewton: function evaluation error")
     if (trace > 1) {
        cat("f(xnew)=",fval," at ")
        print(xnew)

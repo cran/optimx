@@ -1,58 +1,61 @@
 ##################################################################
 ctrldefault <- function(npar) { 
-# THIS IS FULL VERSION FOR optimrx
+# THIS IS FULL VERSION FOR optimx
 #
      ## These are DEFAULTS. They may be nonsense in some contexts.
 
       allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
-                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "snewton", "snewtonm",
+                "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin", "snewton", "snewtonm",
                  "spg", "ucminf", "newuoa", "bobyqa", "nmkb", "hjkb", "hjn", 
                  "lbfgs", "subplex")
 
 #  allpkg has package where element of allmeth is found
       allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
-                "lbfgsb3", "optimx", "optimx", "optimx", "optimx", "optimx",
+                "lbfgsb3c", "optimx", "optimx", "optimx", "optimx", "optimx",
                 "BB", "ucminf", "minqa", "minqa", "dfoptim", "dfoptim", 
                 "optimx", "lbfgs", "subplex")
 
      # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
-      bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",  
+      bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin",  
                 "bobyqa", "nmkb", "hjkb", "hjn")
 
       maskmeth <- c("Rcgmin", "Rvmmin", "hjn")
  
 # offset changed from 100 to 1000 on 180710
       ctrl.default <- list(
-        acctol = 0.0001, 
-        all.methods = FALSE,
-        allmeth = allmeth,
-        allpkg = allpkg,
-      	badval = (0.5)*.Machine$double.xmax,
-        bdmeth = bdmeth,
-        bigval = .Machine$double.xmax*0.01,
-        defgrapprox = "grfwd",
-        defmethod = "Nelder-Mead",
-        defstep=1,
-        dowarn = TRUE, 
-        eps = 1e-07, 
-        epstol = .Machine$double.eps,
-        fnscale = 1.0, 
-        grtesttol=(.Machine$double.eps)^(1/3), 
-        have.bounds = FALSE,
-        hessasymtol = 0.0001,
-        hesstesttol=(.Machine$double.eps)^(1/3), 
-        keepinputpar = FALSE,
-        kkt = TRUE,
-        kkttol = 0.001,
-        kkt2tol = 1.0E-6,
-        maskmeth = maskmeth,
-        maximize = FALSE,
-        maxit = 500*round(sqrt(npar+1)),
-        maxfeval = 5000*round(sqrt(npar+1)),
-        offset = 1000.0,
-        parchanged = FALSE, 
-        parscale = rep(1, npar),
+        acctol = 0.0001, # used for acceptable point test in backtrack linesearch
+        all.methods = FALSE, # we do NOT want all methods to be the default
+        allmeth = allmeth, # to define the set of all methods
+        allpkg = allpkg, # to list all the packages required
+      	badval = (0.5)*.Machine$double.xmax, # use this value as a flag of non-computable item
+        bdmeth = bdmeth, # list of bounds-constrained methods
+        bigval = .Machine$double.xmax*0.01, # a very large number (note smaller than badval)
+        defgrapprox = "grfwd", # use forward approximation as default. Could argue for grcentral
+        defmethod = "Nelder-Mead", # same default as optim(). Do we want this?
+        defstep=1, # default stepsize is 1 (Newton stepsize)
+        dowarn = TRUE,  # generally want to turn on warnings
+        eps = 1e-07, # a tolerance for a small quantity (about single precision level)
+        epstol = .Machine$double.eps, # but this is the machine epsilon
+        fnscale = 1.0, # Normally scale function by 1. -1 maximizes functions
+        grtesttol=(.Machine$double.eps)^(1/3), # a test tolerance for equality for numeric and 
+        # analytic gradients
+        have.bounds = FALSE, # normally have UNCONSTRAINED function
+        hessasymtol = 0.0001, # tolerance for testing Hessian asymmetry. Note that it 
+        # cannot be too small or we get too many false positives
+        hesstesttol=(.Machine$double.eps)^(1/3), # See grtesttol. This is for Hessian approx.
+        keepinputpar = FALSE, # When TRUE do NOT allow bounds check to change parameter values
+        kkt = TRUE, # Normally test KKT conditions. May take a LONG time.
+        kkttol = 0.001, # tolerance for testing KKT small gradient condition 
+        kkt2tol = 1.0E-6, # tolerance for testing KKT curvature condition
+        maskmeth = maskmeth, # list of methods that allow masks (fixed parameters)
+        maximize = FALSE, # normally MINIMIZE (see fnscale)
+        maxit = 500*round(sqrt(npar+1)), # limit on number of iterations or gradient evaluations
+        maxfeval = 5000*round(sqrt(npar+1)), # limit on function evaluations
+        offset = 1000.0, # used for equality test (a + offset) == (b + offset)
+        parchanged = FALSE, # set TRUE when bounds check has changed parameter values
+        parscale = rep(1, npar), # vector of scaling factors for parameters. Try to get
+        # scaled parameters to have magnitude in range (1, 10)
         reltest = 100.0,
         save.failures = TRUE,
       	scaletol = 3, 
