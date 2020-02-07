@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2020-1.31
-Date: 2020-01-31
+Version: 2020-2.2
+Date: 2020-02-02
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -27,6 +27,6 @@ NeedsCompilation: no
 Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim,
         lbfgsb3c, lbfgs, subplex
 VignetteBuilder: knitr
-Packaged: 2020-02-01 20:33:22 UTC; john
+Packaged: 2020-02-07 13:51:17 UTC; john
 Repository: CRAN
-Date/Publication: 2020-02-01 21:20:06 UTC
+Date/Publication: 2020-02-07 17:30:02 UTC

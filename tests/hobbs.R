@@ -87,13 +87,25 @@ hobbs.h <- function(x) { ## compute Hessian
 }
 
 
+allm <- c("BFGS", "CG", "Nelder-Mead",  "nlm", "nlminb", 
+          "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin",
+          "spg", "ucminf", "bobyqa", "hjkb", "hjn", 
+          "subplex")
+# Dropped "L-BFGS-B", "newuoa", "nmkb", "snewton", "snewtonm","lbfgs",  as they give trouble
+#  Not an optimx problem, but one in underlying methods
+
 
 x0 <- c(200, 50, .3)
 # This start seems to be OK for all methods
 cat("Start for Hobbs:")
 print(x0)
 cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
-ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+
+## Following revealed typo in optimr() for lbfgsb3c
+# ahobb01 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="lbfgsb3c")
+# ahobb01
+
+ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
 print(summary(ahobb0, order=value))
 
 
@@ -102,14 +114,17 @@ x1 <- c(1, 1, 1)
 cat("Start for Hobbs:")
 print(x1)
 cat("Initial value of hobbs.f = ",hobbs.f(x1),"\n")
-ahobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+ahobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
 print(summary(ahobb1, order=value))
+
+# ahobb1lbfgsb<- optim(x1, hobbs.f, hobbs.g, method="L-BFGS-B", control=list(trace=3))
+# Note that optim alone fails in the above
 
 x1s <- c(100, 10, .1)
 # L-BFGS-B and lbfgb3 both fail because f or g becomes Inf.
 cat("Start for Hobbs:")
 print(x1s)
 cat("Initial value of hobbs.f = ",hobbs.f(x1s),"\n")
-ahobb1s <- opm(x1s, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+ahobb1s <- opm(x1s, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
 print(summary(ahobb1s, order=value))
 

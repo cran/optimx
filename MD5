@@ -1,4 +1,4 @@
-de473b4fa504a273bcef2b592105b262 *DESCRIPTION
+ba79327bf15c643414a2ab437d9ddcc5 *DESCRIPTION
 7f5f1ae077aa4f81add21adcb7ae70de *NAMESPACE
 e6186f18365613915edb8e7f6013d33b *NEWS
 667389440efd56a115b7cae323268c2a *R/Rcgmin.R
@@ -27,7 +27,7 @@ fb58fae2216f5d0c6bc1a640675474d9 *R/hjn.R
 02e5bfe823fcfa4b85808954d73f8a19 *R/multistart.R
 159a53068c36c0a4ba61254d5d275353 *R/opm.R
 c0dae179635d15bd0b4ea35792fce6d8 *R/optchk.R
-a17c89691b5b3c2cf94d62aa3bc61628 *R/optimr.R
+61736d62bebc2794671716d48395d493 *R/optimr.R
 d785cfb4e37ce4093ce8f8eb82e7249d *R/optimx-package.R
 5eb86e23d881426613f31fb15ee5b8d0 *R/optimx.R
 5d755b3fc9e1a62608a96a28a42c4de7 *R/optimx.check.R
@@ -113,7 +113,7 @@ f0ed21405ee27d3cb882d6e78fadd7b5 *man/summary.optimx.Rd
 ad3f940f4a3414ddc639eaa06a0d4ce9 *man/tn.Rd
 48d033ad971e96756f8c676f4bb2cd5a *man/tnbc.Rd
 c8393dd21a9671fc45eca1dd6f61b717 *tests/bdstest.R
-5895a29e7f22f86868f5908871482db0 *tests/hobbs.R
+c67112cba65461e797cb71dd1a5d1fbb *tests/hobbs.R
 f8676d7f55eeedad317305b69953009b *tests/jonesrun.R
 23699e3ea7dd7d88a7134f169e879272 *tests/maxfn.R
 5cb59d006ea5444abdc3eca5074d0660 *tests/rosenbrock.R

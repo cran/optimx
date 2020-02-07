@@ -913,13 +913,13 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # 170924 no longer needed
 ##        if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
         if (control$trace > 0) cat("lbfgsb3c:control$have.bounds =",control$have.bounds,"\n")
-        if (control$have.bounds) { ## Note call uses prm not par
+        if (control$have.bounds) { 
             slower <- lower/pscale
             supper <- upper/pscale
-            ans <- try(lbfgsb3c::lbfgsb3c(prm=spar, fn=efn, gr=egr, lower = slower, 
+            ans <- try(lbfgsb3c::lbfgsb3c(par=spar, fn=efn, gr=egr, lower = slower, 
                 upper = supper, control=mcontrol, ...)) # explicit pkg in call 170919
         } else {
-            ans <- try(lbfgsb3c::lbfgsb3c(prm=spar, fn=efn, gr=egr, control=mcontrol, ...))
+            ans <- try(lbfgsb3c::lbfgsb3c(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
         }
         if (! inherits(ans, "try-error")) {
  ## Need to check these carefully?? -- changed 20191202 for lbfgsb3c
