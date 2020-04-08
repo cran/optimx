@@ -155,6 +155,10 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     \describe{
       \item{\code{1}}{indicates that the iteration limit \code{maxit}
       had been reached.}
+      \item{\code{2}}{(Rvmmin) indicates that a point has been found with small
+      gradient norm (< (1 + abs(fmin))*eps*eps ).}
+      \item{\code{3}}{(Rvmmin) indicates approx. inverse Hessian cannot be updated
+       at steepest descent iteration (i.e., something very wrong).}
       \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
 	that the function cannot be computed or returns an infinite, NULL, or NA value.}
       \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}

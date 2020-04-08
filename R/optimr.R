@@ -3,6 +3,26 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
 ## 180706: Problem with maxit. Likely issue is that opm gets ctrldefault and
 ## updates with actual control list. But here in nlm, maxit defaults to 100.
+
+## We need to be sure user has not tried to set both controls "maximize" and "fnscale"
+  # First case: User set's nothing
+  if (is.null(control$maximize) && is.null(control$fnscale)){control$fnscale = 1.0}
+  # Otherwise, user has set one or both. If both, there may be conflict.
+  else if (! is.null(control$maximize) ) { # user has set "maximize" control
+      if (control$maximize) { # user wants maximize. Check fnscale
+         if (is.null(control$fnscale)) {
+            control$fnscale <- -1.0 # set maximization 
+         } else if (control$fnscale < 0.0) {
+            warning("User has set control$maximize = TRUE and admissible control$fnscale")
+         } else { stop("control$fnscale and control$maximize conflict") }
+      } else  # control$maximize set to FALSE by user
+         if (is.null(control$fnscale)) {
+            control$fnscale <- 1.0 # set maximization 
+         } else if (control$fnscale > 0.0) {
+            warning("User has set control$maximize = FALSE and admissible control$fnscale")
+         } else { stop("control$fnscale and control$maximize conflict") }
+      } # end is.null(control$maximize)
+
   npar <- length(par)
   ctrl <- ctrldefault(npar)
   ncontrol <- names(control)
@@ -14,6 +34,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      }
   }
   control <- ctrl # note the copy back! control now has a FULL set of values
+  #                 with user input over-writing defaults as appropriate
   ## 180706: Should we try to streamline?
 
   if (is.null(method)) method <- control$defmethod
@@ -64,24 +85,13 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     slower <- lower/pscale
     supper <- upper/pscale
   }
-  fnscale <- 1 # default to ensure defined
-  if (is.null(control$fnscale)) {
-     if (! is.null(control$maximize) && control$maximize ) {fnscale <- -1}
-  else if (! is.null(control$maximize)) {
-          if ( (control$fnscale < 0) && control$maximize) {fnscale <- -1} # this is OK
-          else stop("control$fnscale and control$maximize conflict")
-       } # end ifelse
-  } # end else
-  control$origmaximize <- control$maximize # save the original in case we need it
-  control$maximize <- FALSE # and ensure we minimize
-  control$fnscale <- fnscale # to ensure set again
 
 # 160615 -- decided to postpone adding nloptr
 
   efn <- function(spar, ...) {
       # rely on pscale being defined in this enclosing environment
       par <- spar*pscale
-      val <- fn(par, ...) * fnscale
+      val <- fn(par, ...) * control$fnscale
   }
 
   appgr<-FALSE # so far assuming analytic gradient
@@ -92,7 +102,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      appgr <- TRUE # to inform us that we are using approximation
      egr <- function(spar, ...){
         if (control$trace > 1) {
-           cat("fnscale =",fnscale,"  pscale=")
+           cat("control$fnscale =",control$fnscale,"  pscale=")
            print(pscale)
            cat("gr:")
            print(gr)
@@ -100,48 +110,34 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            print(par)
         }
         par <- spar*pscale
-        result <- do.call(gr, list(par, userfn=fn, ...)) * fnscale
+        result <- do.call(gr, list(par, userfn=fn, ...)) * control$fnscale
      }
   } else { 
     if (is.null(gr)) {egr <- NULL}
     else {
        egr <- function(spar, ...) {
          par <- spar*pscale
-         result <- gr(par, ...) * pscale * fnscale
+         result <- gr(par, ...) * pscale * control$fnscale
        }
     }
   } # end egr definition
 
-## cat("Now check if we need scaled hessian\n")
-## cat("is.null(hess) = ",is.null(hess),"\n")
-
-## if (! is.null(hess)) {
-##    cat("Hessian at parameters:\n")
-##    print(hess(par,...))
-## } 
-
-  if (is.null(hess)) { ehess <- NULL}
-  else { ehess <- function(spar, ...) {
+  if (is.null(hess)) { 
+       ehess <- NULL
+  } else { ehess <- function(spar, ...) {
                       par <- spar*pscale
-                      result <- hess(par, ...) * pscale * pscale * fnscale
+                      result <- hess(par, ...) * pscale * pscale * control$fnscale
                       result
                   }
   }
-
-## cat("Is ehess present? is.null(ehess) =",is.null(ehess),"\n")
-## if (! is.null(ehess)) {
-##   cat("eHessian at scaled parameters:\n")
-##   print(ehess(spar,...))
-## }
-
 
   if (appgr && (control$trace>0)) cat("Using numerical approximation '",gr,"' to gradient in optimru()\n")
 
   nlmfn <- function(spar, ...){
      f <- efn(spar, ...)
-     if (is.null(egr)) {g <- NULL} else {g <- egr(spar, ...)}
+     if (is.null(egr)) { g <- NULL} else {g <- egr(spar, ...) }
      attr(f,"gradient") <- g
-     if (is.null(ehess)) { h <- NULL } else {h <- ehess(spar, ...)}
+     if (is.null(ehess)) { h <- NULL } else {h <- ehess(spar, ...) }
      attr(f,"hessian") <- h
      f
   }
@@ -524,7 +520,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         if (! inherits(ans, "try-error")) {
             ## Need to check these carefully??
             ans$par <- ans$par*pscale
-            ans$value <- ans$value*fnscale
+            ans$value <- ans$value*control$fnscale
             ans$message <- NA # Should add a msg ??
          } else {
             if (control$trace > 0) cat("hjn failed for current problem \n")
@@ -974,7 +970,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	    # cat("dotstuff:\n")
 #	    print(dotstuff)
 	    dotstuff$pscale <- pscale
-	    dotstuff$fnscale <- fnscale
+	    dotstuff$fnscale <- control$fnscale
 	    eopt <- list2env(dotstuff) # put it in an environment
 	    # print(ls(eopt))
             ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, 
@@ -985,7 +981,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         if (! inherits(ans, "try-error")) {
         ## Need to check these carefully??
             ans$par <- ans$par*pscale
-            ans$value <- ans$value*fnscale
+            ans$value <- ans$value*control$fnscale
             ans$counts[1] <- NA # lbfgs seems to have no output like this
             ans$counts[2] <- NA
          } else {
@@ -1021,7 +1017,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        if (!inherits(ans, "try-error") && (ans$convergence != -2)) {
        ## Need to check these carefully??
        ans$par <- ans$par*pscale
-       ans$value <- ans$value*fnscale
+       ans$value <- ans$value*control$fnscale
        ans$counts[1] <- ans$count
        ans$counts[2] <- NA
        ans$count <- NULL
@@ -1057,7 +1053,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
              stop(errmsg, call.=FALSE)
       }
 # Exit from routine
-      ans$value <- ans$value * fnscale # reset for maximum
+      ans$value <- ans$value * control$fnscale # reset for maximum
       if (savehess) { # compute hessian
          if (is.null(orig.gr)) {
             hess <- hessian(orig.fn, ans$par, ...) # from numDeriv

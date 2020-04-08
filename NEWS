@@ -29,6 +29,9 @@ NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
+VERSION 2020-04-02
+      o Repair maximization error in optimr()
+
 VERSION 2020-01-18
       o This version does not call some non-CRAN packages.
 

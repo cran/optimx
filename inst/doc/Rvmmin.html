@@ -349,12 +349,12 @@ xtabs(formula = fval ~ acctol + eps, data=resdf)
 
 <pre><code>##        eps
 ## acctol         1e-11        1e-09        1e-07        1e-05        0.001
-##   1e-06 3.964816e-29 3.964816e-29 3.964816e-29 6.841589e-24 7.489034e-15
-##   1e-05 3.964816e-29 3.964816e-29 3.964816e-29 6.841589e-24 7.489034e-15
-##   1e-04 3.964816e-29 3.964816e-29 3.964816e-29 6.841589e-24 7.489034e-15
-##   0.001 3.964816e-29 3.964816e-29 3.964816e-29 6.841589e-24 7.489034e-15
-##   0.01  3.964816e-29 3.964816e-29 3.964816e-29 6.841589e-24 7.489034e-15
-##   0.1   3.964816e-29 3.964816e-29 3.964816e-29 6.841589e-24 7.489034e-15
+##   1e-06 3.964816e-29 3.964816e-29 3.964816e-29 7.049696e-24 7.486504e-15
+##   1e-05 3.964816e-29 3.964816e-29 3.964816e-29 7.049696e-24 7.486504e-15
+##   1e-04 3.964816e-29 3.964816e-29 3.964816e-29 7.049696e-24 7.486504e-15
+##   0.001 3.964816e-29 3.964816e-29 3.964816e-29 7.049696e-24 7.486504e-15
+##   0.01  3.964816e-29 3.964816e-29 3.964816e-29 7.049696e-24 7.486504e-15
+##   0.1   3.964816e-29 3.964816e-29 3.964816e-29 7.049696e-24 7.486504e-15
 </code></pre>
 
 <pre><code class="r"># Display the gradient norm found for different tolerances
@@ -363,12 +363,12 @@ xtabs(formula = gnorm ~ acctol + eps, data=resdf)
 
 <pre><code>##        eps
 ## acctol         1e-11        1e-09        1e-07        1e-05        0.001
-##   1e-06 2.130888e-27 2.130888e-27 2.130888e-27 3.528814e-22 1.091331e-13
-##   1e-05 2.130888e-27 2.130888e-27 2.130888e-27 3.528814e-22 1.091331e-13
-##   1e-04 2.130888e-27 2.130888e-27 2.130888e-27 3.528814e-22 1.091331e-13
-##   0.001 2.130888e-27 2.130888e-27 2.130888e-27 3.528814e-22 1.091331e-13
-##   0.01  2.130888e-27 2.130888e-27 2.130888e-27 3.528814e-22 1.091331e-13
-##   0.1   2.130888e-27 2.130888e-27 2.130888e-27 3.528814e-22 1.091331e-13
+##   1e-06 2.130888e-27 2.130888e-27 2.130888e-27 3.645064e-22 1.089927e-13
+##   1e-05 2.130888e-27 2.130888e-27 2.130888e-27 3.645064e-22 1.089927e-13
+##   1e-04 2.130888e-27 2.130888e-27 2.130888e-27 3.645064e-22 1.089927e-13
+##   0.001 2.130888e-27 2.130888e-27 2.130888e-27 3.645064e-22 1.089927e-13
+##   0.01  2.130888e-27 2.130888e-27 2.130888e-27 3.645064e-22 1.089927e-13
+##   0.1   2.130888e-27 2.130888e-27 2.130888e-27 3.645064e-22 1.089927e-13
 </code></pre>
 
 <pre><code class="r"># Display the number of function evaluations used for different tolerances
@@ -449,12 +449,12 @@ xtabs(formula = fval ~ exfs + eps, data=resdf)
 
 <pre><code>##     eps
 ## exfs        1e-11        1e-09        1e-07        1e-05        0.001
-##    1 2.576124e-29 2.576124e-29 2.576124e-29 1.903127e-28 1.903127e-28
-##    2 0.000000e+00 0.000000e+00 0.000000e+00 1.425669e-25 1.425669e-25
-##    3 1.232595e-29 1.232595e-29 1.232595e-29 1.232595e-29 1.178643e-22
-##    4 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 4.149267e-20
-##    5 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 3.620953e-20
-##    6 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00
+##    1 6.125998e-29 6.125998e-29 6.125998e-29 2.001735e-28 2.001735e-28
+##    2 0.000000e+00 0.000000e+00 0.000000e+00 1.772768e-25 1.772768e-25
+##    3 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 1.210198e-22
+##    4 1.232595e-28 1.232595e-28 1.232595e-28 1.232595e-28 5.241000e-20
+##    5 4.930381e-27 4.930381e-27 4.930381e-27 4.930381e-27 4.930381e-27
+##    6 1.232595e-26 1.232595e-26 1.232595e-26 1.232595e-26 1.232595e-26
 </code></pre>
 
 <pre><code class="r"># Display the gradient norm found for different tolerances
@@ -463,12 +463,12 @@ xtabs(formula = gnorm ~ exfs + eps, data=resdf)
 
 <pre><code>##     eps
 ## exfs        1e-11        1e-09        1e-07        1e-05        0.001
-##    1 1.030450e-27 1.030450e-27 1.030450e-27 7.612508e-27 7.612508e-27
-##    2 0.000000e+00 0.000000e+00 0.000000e+00 5.702675e-25 5.702675e-25
-##    3 4.930381e-30 4.930381e-30 4.930381e-30 4.930381e-30 4.714574e-23
-##    4 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 1.659707e-21
-##    5 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 1.448381e-22
-##    6 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00
+##    1 2.450399e-27 2.450399e-27 2.450399e-27 8.006938e-27 8.006938e-27
+##    2 0.000000e+00 0.000000e+00 0.000000e+00 7.091071e-25 7.091071e-25
+##    3 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 4.840792e-23
+##    4 4.930381e-30 4.930381e-30 4.930381e-30 4.930381e-30 2.096400e-21
+##    5 1.972152e-29 1.972152e-29 1.972152e-29 1.972152e-29 1.972152e-29
+##    6 4.930381e-30 4.930381e-30 4.930381e-30 4.930381e-30 4.930381e-30
 </code></pre>
 
 <pre><code class="r"># Display the number of function evaluations used for different tolerances
@@ -477,11 +477,11 @@ xtabs(formula = nf ~ exfs + eps, data=resdf)
 
 <pre><code>##     eps
 ## exfs 1e-11 1e-09 1e-07 1e-05 0.001
-##    1    11    11    11     5     5
+##    1     9     9     9     5     5
 ##    2    16    16    16     6     6
-##    3    21    21    21    21     8
-##    4    25    25    25    25     9
-##    5    31    31    31    31    21
+##    3    22    22    22    22     8
+##    4    26    26    26    26     9
+##    5    30    30    30    30    30
 ##    6    35    35    35    35    35
 </code></pre>
 
@@ -491,11 +491,11 @@ xtabs(formula = ng ~ exfs + eps, data=resdf)
 
 <pre><code>##     eps
 ## exfs 1e-11 1e-09 1e-07 1e-05 0.001
-##    1     5     5     5     3     3
+##    1     4     4     4     3     3
 ##    2     7     7     7     3     3
 ##    3     7     7     7     7     3
 ##    4     7     7     7     7     3
-##    5     7     7     7     7     5
+##    5     7     7     7     7     7
 ##    6     7     7     7     7     7
 </code></pre>
 
@@ -699,7 +699,7 @@ for (irun in 1:nrun) {
 cat(&quot;Rvmminu: number of successes=&quot;,nsuccR,&quot;  propn=&quot;,nsuccR/nrun,&quot;\n&quot;)
 </code></pre>
 
-<pre><code>## Rvmminu: number of successes= 99   propn= 0.99
+<pre><code>## Rvmminu: number of successes= 100   propn= 1
 </code></pre>
 
 <pre><code class="r">cat(&quot;optim:BFGS no. of successes=&quot;,nsuccO,&quot;  propn=&quot;,nsuccO/nrun,&quot;\n&quot;)
@@ -712,13 +712,13 @@ cat(&quot;Rvmminu: number of successes=&quot;,nsuccR,&quot;  propn=&quot;,nsuccR
 summary(fgc)
 </code></pre>
 
-<pre><code>##       fRvm            foptim            gRvm           goptim     
-##  Min.   : 38.00   Min.   :  58.0   Min.   :20.00   Min.   : 16.0  
-##  1st Qu.: 59.75   1st Qu.: 139.0   1st Qu.:31.00   1st Qu.: 53.0  
-##  Median : 76.50   Median : 182.0   Median :40.00   Median : 68.5  
-##  Mean   : 88.89   Mean   : 323.6   Mean   :40.84   Mean   :131.2  
-##  3rd Qu.: 95.25   3rd Qu.: 455.0   3rd Qu.:49.00   3rd Qu.:178.8  
-##  Max.   :951.00   Max.   :1428.0   Max.   :83.00   Max.   :610.0
+<pre><code>##       fRvm            foptim            gRvm            goptim     
+##  Min.   : 36.00   Min.   :  58.0   Min.   : 21.00   Min.   : 16.0  
+##  1st Qu.: 58.50   1st Qu.: 140.5   1st Qu.: 31.75   1st Qu.: 53.0  
+##  Median : 74.50   Median : 184.0   Median : 40.00   Median : 68.5  
+##  Mean   : 87.66   Mean   : 323.5   Mean   : 41.31   Mean   :131.2  
+##  3rd Qu.: 93.00   3rd Qu.: 453.5   3rd Qu.: 48.00   3rd Qu.:178.8  
+##  Max.   :871.00   Max.   :1427.0   Max.   :101.00   Max.   :610.0
 </code></pre>
 
 <p>From this summary, it appears that Rvmmin, on average, uses fewer gradient and
@@ -753,7 +753,7 @@ for (irun in 1:nrun) {
 cat(&quot;Rvmminu: number of successes=&quot;,nsuccR,&quot;  propn=&quot;,nsuccR/nrun,&quot;\n&quot;)
 </code></pre>
 
-<pre><code>## Rvmminu: number of successes= 99   propn= 0.99
+<pre><code>## Rvmminu: number of successes= 100   propn= 1
 </code></pre>
 
 <pre><code class="r">cat(&quot;optim:BFGS no. of successes=&quot;,nsuccO,&quot;  propn=&quot;,nsuccO/nrun,&quot;\n&quot;)
@@ -766,13 +766,13 @@ cat(&quot;Rvmminu: number of successes=&quot;,nsuccR,&quot;  propn=&quot;,nsuccR
 summary(fgc)
 </code></pre>
 
-<pre><code>##       fRvm            foptim           gRvm           goptim      
-##  Min.   : 38.00   Min.   : 58.0   Min.   :20.00   Min.   : 16.00  
-##  1st Qu.: 59.75   1st Qu.:139.0   1st Qu.:31.00   1st Qu.: 53.00  
-##  Median : 76.50   Median :182.0   Median :40.00   Median : 68.50  
-##  Mean   : 88.89   Mean   :184.1   Mean   :40.84   Mean   : 71.73  
-##  3rd Qu.: 95.25   3rd Qu.:236.0   3rd Qu.:49.00   3rd Qu.:100.00  
-##  Max.   :951.00   Max.   :425.0   Max.   :83.00   Max.   :100.00
+<pre><code>##       fRvm            foptim           gRvm            goptim      
+##  Min.   : 36.00   Min.   : 58.0   Min.   : 21.00   Min.   : 16.00  
+##  1st Qu.: 58.50   1st Qu.:140.5   1st Qu.: 31.75   1st Qu.: 53.00  
+##  Median : 74.50   Median :184.0   Median : 40.00   Median : 68.50  
+##  Mean   : 87.66   Mean   :184.0   Mean   : 41.31   Mean   : 71.73  
+##  3rd Qu.: 93.00   3rd Qu.:236.0   3rd Qu.: 48.00   3rd Qu.:100.00  
+##  Max.   :871.00   Max.   :425.0   Max.   :101.00   Max.   :100.00
 </code></pre>
 
 <h2>Bounds and masks</h2>

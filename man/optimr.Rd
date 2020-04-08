@@ -122,6 +122,9 @@ ans <- optimr(start, myf, myg, lower, upper)
   or you will likely get wrong results. Instead use
   
 ans <-  optimr(start, myf, myg, lower=lower, upper=upper)
+
+  NOTE: The default update formula for the "CG" option of \code{optim()}
+        is \code{type=2} or Polak-Ribiere.
 }
 
 \value{

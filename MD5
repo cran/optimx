@@ -1,6 +1,6 @@
-ba79327bf15c643414a2ab437d9ddcc5 *DESCRIPTION
+fd840f4edc268826c16e87a2f2791539 *DESCRIPTION
 7f5f1ae077aa4f81add21adcb7ae70de *NAMESPACE
-e6186f18365613915edb8e7f6013d33b *NEWS
+2f76a8ee8bf814832cc13887f055b8e2 *NEWS
 667389440efd56a115b7cae323268c2a *R/Rcgmin.R
 8336764296532118e7baeb5013e880fa *R/Rcgminb.R
 463342375a4400aa3f4df14db5a80413 *R/Rcgminu.R
@@ -12,7 +12,7 @@ e6186f18365613915edb8e7f6013d33b *NEWS
 07241ebb021c3e05b04f339428860ebd *R/bmchk.R
 535f509623d5d912c1f897d63524d95b *R/bmstep.R
 863bef6982741f7f4447360fcff28f60 *R/checksolver.R
-e91505a17fa56eedb96a051ade22cb00 *R/ctrldefault.R
+a4d3f70d94e2da1a738bf2f0e5a06106 *R/ctrldefault.R
 f618af55bc3817f4b259d6e59ab5bc00 *R/fnchk.R
 2a224685ae0e956027521721cbc7cac2 *R/gHgen.R
 991fb3ad37b9126d91509de3a954a3e5 *R/gHgenb.R
@@ -27,7 +27,7 @@ fb58fae2216f5d0c6bc1a640675474d9 *R/hjn.R
 02e5bfe823fcfa4b85808954d73f8a19 *R/multistart.R
 159a53068c36c0a4ba61254d5d275353 *R/opm.R
 c0dae179635d15bd0b4ea35792fce6d8 *R/optchk.R
-61736d62bebc2794671716d48395d493 *R/optimr.R
+bdb01c607eca216d264fad8969145873 *R/optimr.R
 d785cfb4e37ce4093ce8f8eb82e7249d *R/optimx-package.R
 5eb86e23d881426613f31fb15ee5b8d0 *R/optimx.R
 5d755b3fc9e1a62608a96a28a42c4de7 *R/optimx.check.R
@@ -42,7 +42,7 @@ e2db91bbda309274c46e41db955f3eba *R/snewtonm.R
 ccf2385be54f92b2dd9396f470f5cd9e *R/tnbc.R
 9396d90f945a900adf76487936a21f53 *R/zzz.R
 26a840ce13c7c34913c16766779b25a9 *TODO
-7dcd1b9061d0ddd88c7ff5474392f6b6 *build/vignette.rds
+3a330188e565ea9ec9f5062cba2b421f *build/vignette.rds
 6a41d646928ff4a11d94921c61f23436 *demo/00Index
 cedf20b2ac16efeaeec686a6828f3838 *demo/brown_test.R
 7b5986fa623af50dc093d3a7a59e1bf1 *demo/brown_testRV.R
@@ -64,18 +64,15 @@ ab808bc35fec56ee3e7a898c074aebf0 *demo/unit1.R
 77e5309af2acaf2a0ef6d3700bc0613b *demo/valley_test.R
 4f1ffa89152ec477634000bbcb2ba5ca *demo/vmmix_test.R
 ff0aab67495e35a7e9e8064a2164d0cf *inst/CITATION
-a6d5260e530db454a506105c61e85c85 *inst/doc/Extend-optimx-code.R
 a9ca81f7a91bd30fbc9fceb859f4c4c3 *inst/doc/Extend-optimx.R
 bb3c62ee669b82b0500e8e74ead0e04a *inst/doc/Extend-optimx.Rmd
-57f8156804311cef05d56570e16d65e5 *inst/doc/Extend-optimx.html
-83c5275c2fb529fa8a69d15dbc929266 *inst/doc/Rvmmin-code.R
+71452274408ebc6e1b1e9b73f608e358 *inst/doc/Extend-optimx.pdf
 0df10f21c7e0be1ec6ab6a683967d32d *inst/doc/Rvmmin.R
 ab41de9cd57e5c4b96135829948989d8 *inst/doc/Rvmmin.Rmd
-d0ff0d22a3537cf1bbdf65f0b8b77637 *inst/doc/Rvmmin.html
-be5383bc302414aff6edc946b54f3e47 *inst/doc/SNewton-code.R
-87272b479c72ac69303f1bad45b3c576 *inst/doc/SNewton.R
-ea3827846cd2d06dea8f90dda527d730 *inst/doc/SNewton.Rmd
-222e221846bd96e20c1e4f69e52e3ced *inst/doc/SNewton.html
+38e581a9b4d243e785bb49ed6c1667d7 *inst/doc/Rvmmin.html
+a6aa25a3c718b2b638c27e8b1688c2c4 *inst/doc/SNewton.R
+951de66bfc7bc1506247f28986958725 *inst/doc/SNewton.Rmd
+5a5451cebbd30c9712390231cda7db3e *inst/doc/SNewton.html
 e337ce063c5a2a523aed43ae88d58d67 *man/Rcgmin.Rd
 caaf95826c3558ee0a30c1dddf29929c *man/Rcgminb.Rd
 aa527273e4c0b4c3709558f949d968f8 *man/Rcgminu.Rd
@@ -100,9 +97,9 @@ b064452aa86f84abd565f3044cc2331b *man/grchk.Rd
 cf83f5a4b85d187ff855737835aa5f3f *man/hjn.Rd
 5f556b54b4de05b8b1de142b55c514eb *man/kktchk.Rd
 c748dddde13cbc8c8f224b19394310e3 *man/multistart.Rd
-b35bebc92f4962b349b6e2ba224172a1 *man/opm.Rd
+20c1ec2aa8079816ee8c3ef2dd1ba753 *man/opm.Rd
 544a28d2beabf3e885c8187de09e7f6b *man/optchk.Rd
-f1a3f8bf3cb57a413f55d1295527aee2 *man/optimr.Rd
+edf64e275db267eaf5c683365a868018 *man/optimr.Rd
 c73668cf9d3af42bdd2ef8394a43ae1b *man/optimx-package.Rd
 f181ba02c7102b5a245d49c38bd70d62 *man/optimx.Rd
 99a7ab6471d53b9657258dd92c9f1c19 *man/polyopt.Rd
@@ -130,4 +127,4 @@ bb3c62ee669b82b0500e8e74ead0e04a *vignettes/Extend-optimx.Rmd
 e705b5b7ddb27362aa35c01eed60d547 *vignettes/Extend-optimx.bib
 ab41de9cd57e5c4b96135829948989d8 *vignettes/Rvmmin.Rmd
 e705b5b7ddb27362aa35c01eed60d547 *vignettes/Rvmmin.bib
-ea3827846cd2d06dea8f90dda527d730 *vignettes/SNewton.Rmd
+951de66bfc7bc1506247f28986958725 *vignettes/SNewton.Rmd
