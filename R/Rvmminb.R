@@ -116,7 +116,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
      stop("Do not use Rvmminb() without bounds.")
   } else { bounds = TRUE }
 
-  cat("trace=",trace,"\n") # This is not picked up -- Why?
+#  cat("trace=",trace,"\n") # This is not picked up -- Why?
 
   if (trace > 1) {
      cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 

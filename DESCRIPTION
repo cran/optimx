@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2020-4.2
-Date: 2020-04-02
+Version: 2021-6.12
+Date: 2021-06-12
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -24,9 +24,9 @@ License: GPL-2
 LazyLoad: Yes
 Imports: numDeriv
 NeedsCompilation: no
-Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim,
-        lbfgsb3c, lbfgs, subplex
+Suggests: knitr, rmarkdown, markdown, setRNG, BB, ucminf, minqa,
+        dfoptim, lbfgsb3c, lbfgs, subplex
 VignetteBuilder: knitr
-Packaged: 2020-04-02 22:18:54 UTC; john
+Packaged: 2021-06-12 20:01:39 UTC; john
 Repository: CRAN
-Date/Publication: 2020-04-08 14:20:02 UTC
+Date/Publication: 2021-06-13 18:10:02 UTC

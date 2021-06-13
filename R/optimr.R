@@ -19,7 +19,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          if (is.null(control$fnscale)) {
             control$fnscale <- 1.0 # set maximization 
          } else if (control$fnscale > 0.0) {
-            warning("User has set control$maximize = FALSE and admissible control$fnscale")
+            if (control$fnscale != 1.0) {
+               warning("User has set control$maximize = FALSE and admissible control$fnscale")
+             }
          } else { stop("control$fnscale and control$maximize conflict") }
       } # end is.null(control$maximize)
 

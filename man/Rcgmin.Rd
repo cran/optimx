@@ -142,7 +142,7 @@
 
        Nash, J. C. and M. Walker-Smith (1987). Nonlinear Parameter 
        Estimation: An Integrated System in BASIC. New York: Marcel Dekker. 
-       See http://www.nashinfo.com/nlpe.htm for a downloadable version 
+       See https://www.nashinfo.com/nlpe.htm for a downloadable version 
        of this plus some extras.
 
 }

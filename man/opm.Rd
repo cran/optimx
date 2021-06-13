@@ -244,11 +244,11 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 
  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
-     URL http://www.jstatsoft.org/v43/i09/.
+     URL https://www.jstatsoft.org/v43/i09/.
 
  Nash JC (2014). On Best Practice Optimization Methods in R., 
         \emph{Journal of Statistical Software}, 60(2), 1-14.,
-        URL http://www.jstatsoft.org/v60/i02/.
+        URL https://www.jstatsoft.org/v60/i02/.
 
 }
 

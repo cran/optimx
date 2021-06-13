@@ -35,5 +35,5 @@ stepmx <- 10
 accrcy <- 100*eps
 ##---------------------------------------------------------
 ## return [xstar, f, g, ierror] 
-    lmqnbc(x, fgfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace=trace)
+    lmqnbc(x, fgfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace=trace, ...)
 }

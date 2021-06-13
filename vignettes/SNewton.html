@@ -58,7 +58,7 @@ hljs.initHighlightingOnLoad();
 </script>
 
 <!-- MathJax scripts -->
-<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+<script type="text/javascript" src="file:///usr/share/javascript/mathjax/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
 
@@ -377,13 +377,13 @@ require(optimx)
 sessionInfo() # included to ensure we know which version of optimx in use
 </code></pre>
 
-<pre><code>## R version 3.6.3 (2020-02-29)
+<pre><code>## R version 4.1.0 (2021-05-18)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Linux Mint 19.3
+## Running under: Linux Mint 20.1
 ## 
 ## Matrix products: default
-## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
-## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
+## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
 ## 
 ## locale:
 ##  [1] LC_CTYPE=en_CA.UTF-8       LC_NUMERIC=C              
@@ -397,15 +397,15 @@ sessionInfo() # included to ensure we know which version of optimx in use
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] optimx_2020-4.2
+## [1] optimx_2021-6.12
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.4          digest_0.6.25       magrittr_1.5       
-##  [4] evaluate_0.14       rlang_0.4.5         stringi_1.4.6      
-##  [7] rmarkdown_2.1       tools_3.6.3         stringr_1.4.0      
-## [10] tinytex_0.20        markdown_1.1        numDeriv_2016.8-1.1
-## [13] xfun_0.12           yaml_2.2.1          compiler_3.6.3     
-## [16] htmltools_0.4.0     knitr_1.28
+##  [1] compiler_4.1.0      magrittr_2.0.1      markdown_1.1       
+##  [4] htmltools_0.5.1.1   tools_4.1.0         yaml_2.2.1         
+##  [7] tinytex_0.32        stringi_1.6.2       rmarkdown_2.8      
+## [10] knitr_1.33          stringr_1.4.0       digest_0.6.27      
+## [13] xfun_0.23           numDeriv_2016.8-1.1 rlang_0.4.11       
+## [16] evaluate_0.14
 </code></pre>
 
 <pre><code class="r">t1 &lt;- snewton(x0, fnt, grt, hesst, control=list(trace=0), fscale=3.0)
@@ -753,10 +753,10 @@ print(wd)
 ## [1] 1 1 1 1
 ## 
 ## $value
-## [1] 1.679904e-29
+## [1] 1.142616e-29
 ## 
 ## $grad
-## [1]  5.684342e-14 -1.421085e-14  5.817569e-14  1.421085e-14
+## [1] -2.442491e-15 -7.105427e-15  3.108624e-15  0.000000e+00
 ## 
 ## $Hess
 ##      [,1]   [,2] [,3]   [,4]
@@ -767,23 +767,23 @@ print(wd)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 69
+## [1] 70
 ## 
 ## $counts$nfn
-## [1] 120
+## [1] 119
 ## 
 ## $counts$ngr
-## [1] 69
+## [1] 70
 ## 
 ## $counts$nhess
-## [1] 69
+## [1] 70
 ## 
 ## 
 ## $convcode
-## [1] 93
+## [1] 92
 ## 
 ## $message
-## [1] &quot;No progress in linesearch!&quot;
+## [1] &quot;No progress before linesearch!&quot;
 </code></pre>
 
 <pre><code class="r">wdm &lt;- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=0))
@@ -794,10 +794,10 @@ print(wdm)
 ## [1] 1 1 1 1
 ## 
 ## $value
-## [1] 1.082712e-29
+## [1] 1.246154e-30
 ## 
 ## $grad
-## [1] -5.462297e-14 -7.105427e-15 -5.817569e-14  0.000000e+00
+## [1]  0.000000e+00 -1.421085e-14 -2.220446e-16 -1.421085e-14
 ## 
 ## $Hess
 ##      [,1]   [,2] [,3]   [,4]
@@ -808,16 +808,16 @@ print(wdm)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 95
+## [1] 92
 ## 
 ## $counts$nfn
-## [1] 94
+## [1] 91
 ## 
 ## $counts$ngr
-## [1] 53
+## [1] 52
 ## 
 ## $counts$nhess
-## [1] 53
+## [1] 52
 ## 
 ## 
 ## $convcode
@@ -837,7 +837,7 @@ t1nlmo &lt;- optimr(x0, wood.f, wood.g, hess=wood.h, method=&quot;nlm&quot;, con
 proptimr(t1nlmo)
 </code></pre>
 
-<pre><code>## Result  t1nlmo   proposes optimum function value = 1.00494e-16  at parameters
+<pre><code>## Result  t1nlmo   proposes optimum function value = 1.004938e-16  at parameters
 ## [1] 1 1 1 1
 ## After  NA  fn evals, and  335  gr evals
 ## Termination code is  0 : nlm: Convergence indicator (code) =  1
@@ -850,9 +850,9 @@ if (class(tst) == &quot;try-error&quot;){
 } else { proptimr(t1nlminbo) }
 </code></pre>
 
-<pre><code>## Result  t1nlminbo   proposes optimum function value = 1.841497e-30  at parameters
+<pre><code>## Result  t1nlminbo   proposes optimum function value = 4.79233e-29  at parameters
 ## [1] 1 1 1 1
-## After  54  fn evals, and  44  gr evals
+## After  56  fn evals, and  45  gr evals
 ## Termination code is  0 : X-convergence (3)
 ## ---------------------------------------
 </code></pre>
@@ -1181,7 +1181,7 @@ print(solx0)
 ## [1] 2.587277
 ## 
 ## $grad
-## [1] -4.440892e-16  2.109424e-15 -3.979039e-13
+## [1]  1.665335e-16 -2.220446e-16  2.273737e-13
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
@@ -1191,16 +1191,16 @@ print(solx0)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 10
+## [1] 13
 ## 
 ## $counts$nfn
-## [1] 10
+## [1] 13
 ## 
 ## $counts$ngr
-## [1] 10
+## [1] 13
 ## 
 ## $counts$nhess
-## [1] 10
+## [1] 13
 ## 
 ## 
 ## $convcode
@@ -1230,7 +1230,7 @@ print(solx0a)
 ## [1] 2.587277
 ## 
 ## $grad
-## [1] -4.440892e-16  2.109424e-15 -3.979039e-13
+## [1]  1.121325e-14 -2.930989e-14  1.341505e-11
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
@@ -1240,16 +1240,16 @@ print(solx0a)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 10
+## [1] 9
 ## 
 ## $counts$nfn
-## [1] 10
+## [1] 9
 ## 
 ## $counts$ngr
-## [1] 10
+## [1] 9
 ## 
 ## $counts$nhess
-## [1] 10
+## [1] 9
 ## 
 ## 
 ## $convcode
@@ -1283,7 +1283,7 @@ print(solx1s)
 ## [1] 2.587277
 ## 
 ## $grad
-## [1]  1.665335e-16 -2.220446e-16  2.273737e-13
+## [1] -4.440892e-16  2.109424e-15 -3.979039e-13
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
@@ -1293,16 +1293,16 @@ print(solx1s)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 36
+## [1] 21
 ## 
 ## $counts$nfn
-## [1] 45
+## [1] 30
 ## 
 ## $counts$ngr
-## [1] 36
+## [1] 21
 ## 
 ## $counts$nhess
-## [1] 36
+## [1] 21
 ## 
 ## 
 ## $convcode
@@ -1329,7 +1329,7 @@ print(solx1m)
 ## [1] 2.587277
 ## 
 ## $grad
-## [1]  1.665335e-16 -2.220446e-16  2.273737e-13
+## [1] -4.440892e-16  2.109424e-15 -3.979039e-13
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
@@ -1339,16 +1339,16 @@ print(solx1m)
 ## 
 ## $counts
 ## $counts$niter
-## [1] 36
+## [1] 21
 ## 
 ## $counts$nfn
-## [1] 45
+## [1] 30
 ## 
 ## $counts$ngr
-## [1] 36
+## [1] 21
 ## 
 ## $counts$nhess
-## [1] 36
+## [1] 21
 ## 
 ## 
 ## $convcode
@@ -1439,19 +1439,19 @@ print(solx3m)
 </code></pre>
 
 <pre><code>## $par
-## [1] 196.1862617  49.0916395   0.3135697
+## [1] 196.1862618  49.0916395   0.3135697
 ## 
 ## $value
 ## [1] 2.587277
 ## 
 ## $grad
-## [1] -8.157010e-09  2.019953e-08 -1.026682e-05
+## [1] -1.055524e-10 -1.470724e-11 -1.153921e-11
 ## 
 ## $Hess
 ##             [,1]         [,2]        [,3]
 ## [1,]    1.265461    -3.256125    1602.105
 ## [2,]   -3.256125     8.627095   -4095.206
-## [3,] 1602.105263 -4095.206388 2043434.032
+## [3,] 1602.105263 -4095.206388 2043434.033
 ## 
 ## $counts
 ## $counts$niter
@@ -1461,10 +1461,10 @@ print(solx3m)
 ## [1] 58
 ## 
 ## $counts$ngr
-## [1] 26
+## [1] 30
 ## 
 ## $counts$nhess
-## [1] 26
+## [1] 30
 ## 
 ## 
 ## $convcode
