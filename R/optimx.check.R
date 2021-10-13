@@ -98,8 +98,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 # Scaling check  091219
     if (ctrl$starttests) {
         optchk$scalebad <- FALSE
-        bdmsk<-rep(1,length(par)) # to handle masks in optimx() function
-	srat<-scalechk(par, lower, upper, bdmsk, ctrl$dowarn)
+	srat<-scalecheck(par, lower, upper,ctrl$dowarn)
 	sratv<-c(srat$lpratio, srat$lbratio)
 	if (max(sratv,na.rm=TRUE) > ctrl$scaletol) { 
 		warnstr<-"Parameters or bounds appear to have different scalings.\n  This can cause poor performance in optimization. \n  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."

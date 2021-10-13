@@ -178,7 +178,6 @@ hesst <- function(x, fscale=10){
 }
 
 require(optimx)
-sessionInfo() # included to ensure we know which version of optimx in use
 t1 <- snewton(x0, fnt, grt, hesst, control=list(trace=0), fscale=3.0)
 print(t1)
 # we can also use nlm and nlminb

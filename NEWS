@@ -29,17 +29,6 @@ NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
-VERSION 2021-06-12
-      o Consolidated scalecheck() into scalechk() and fixed issue of all-zero
-        parameters.
-
-VERSION 2020-04-02
-      o tnbc for Rtnmin method was not calling lmqnbc function with dotargs,
-	so functions were not using exogenous data. Fixed.
-
-VERSION 2020-04-02
-      o Repair maximization error in optimr()
-
 VERSION 2020-01-18
       o This version does not call some non-CRAN packages.
 

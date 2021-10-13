@@ -122,9 +122,6 @@ ans <- optimr(start, myf, myg, lower, upper)
   or you will likely get wrong results. Instead use
   
 ans <-  optimr(start, myf, myg, lower=lower, upper=upper)
-
-  NOTE: The default update formula for the "CG" option of \code{optim()}
-        is \code{type=2} or Polak-Ribiere.
 }
 
 \value{
@@ -181,7 +178,7 @@ See the manual pages for \code{optim()}.
 
  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
-     URL https://www.jstatsoft.org/v43/i09/.
+     URL http://www.jstatsoft.org/v43/i09/.
 
  Nocedal J, and Wright SJ (1999). Numerical optimization. New York: Springer. 2nd Edition 2006.
  

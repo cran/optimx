@@ -10,7 +10,6 @@ ctrldefault <- function(npar) {
                  "lbfgs", "subplex")
 
 #  allpkg has package where element of allmeth is found
-#  This list must match list allmeth in length
       allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
                 "lbfgsb3c", "optimx", "optimx", "optimx", "optimx", "optimx",
                 "BB", "ucminf", "minqa", "minqa", "dfoptim", "dfoptim", 

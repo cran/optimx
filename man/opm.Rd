@@ -155,10 +155,6 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     \describe{
       \item{\code{1}}{indicates that the iteration limit \code{maxit}
       had been reached.}
-      \item{\code{2}}{(Rvmmin) indicates that a point has been found with small
-      gradient norm (< (1 + abs(fmin))*eps*eps ).}
-      \item{\code{3}}{(Rvmmin) indicates approx. inverse Hessian cannot be updated
-       at steepest descent iteration (i.e., something very wrong).}
       \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
 	that the function cannot be computed or returns an infinite, NULL, or NA value.}
       \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}
@@ -244,11 +240,11 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 
  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
-     URL https://www.jstatsoft.org/v43/i09/.
+     URL http://www.jstatsoft.org/v43/i09/.
 
  Nash JC (2014). On Best Practice Optimization Methods in R., 
         \emph{Journal of Statistical Software}, 60(2), 1-14.,
-        URL https://www.jstatsoft.org/v60/i02/.
+        URL http://www.jstatsoft.org/v60/i02/.
 
 }
 
