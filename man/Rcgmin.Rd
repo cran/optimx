@@ -1,8 +1,9 @@
 \name{Rcgmin}
 \alias{Rcgmin}
 \encoding{UTF-8}
-\title{An R implementation of a nonlinear conjugate gradient algorithm with the Dai / Yuan
-   update and restart. Based on Nash (1979) Algorithm 22 for its main structure.}
+\title{An R implementation of a nonlinear conjugate gradient algorithm with the 
+   Dai / Yuan update and restart. Based on Nash (1979) Algorithm 22 for its main 
+   structure.}
 \description{
   The purpose of \code{Rcgmin} is to minimize an unconstrained or bounds
   (box) and mask constrained function 
@@ -96,8 +97,9 @@
 	numerical approximations. Default is FALSE.}
    \item{\code{checkbounds}}{= TRUE if we want bounds verified. Default is 
      TRUE.}
-   \item{}{The source code \code{Rcgmin} for R is likely to remain a work in progress 
-    for some time, so users should watch the console output.}
+     
+   The source code \code{Rcgmin} for R is likely to remain a work in progress 
+   for some time, so users should watch the console output.
   }
 
   As of 2011-11-21 the following controls have been REMOVED
@@ -156,19 +158,15 @@ fr <- function(x) {
     x2 <- x[2]
     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 }
-
 grr <- function(x) { ## Gradient of 'fr'
     x1 <- x[1]
     x2 <- x[2]
     c(-400 * x1 * (x2 - x1 * x1) - 2 * (1 - x1),
        200 *      (x2 - x1 * x1))
 }
-
 grn<-function(x){
     gg<-grad(fr, x)
 }  
-
-
 ansrosenbrock0 <- Rcgmin(fn=fr,gr=grn, par=c(1,2))
 print(ansrosenbrock0) # use print to allow copy to separate file that 
 #    can be called using source()
@@ -181,7 +179,6 @@ bt.f<-function(x){
 bt.g<-function(x){
   gg<-2.0*x
 }
-
 n<-10
 xx<-rep(0,n)
 lower<-rep(0,n)
@@ -194,9 +191,7 @@ for (i in 1:n) {
 }
 xx<-0.5*(lower+upper)
 ansbt<-Rcgmin(xx, bt.f, bt.g, lower, upper, bdmsk, control=list(trace=1))
-
 print(ansbt)
-
 #####################
 genrose.f<- function(x, gs=NULL){ # objective function
 ## One generalization of the Rosenbrock banana valley function (n parameters)
@@ -231,9 +226,6 @@ cat("genrosea uses analytic gradient\n")
 print(genrosea)
 cat("genrosenn uses default gradient approximation\n")
 print(genrosenn)
-
-
-
 cat("timings B vs U\n")
 lo<-rep(-100,10)
 up<-rep(100,10)
@@ -247,9 +239,6 @@ cat("solution Rcgminb\n")
 print(ab)
 cat("diff fu-fb=",au$value-ab$value,"\n")
 cat("max abs parameter diff = ", max(abs(au$par-ab$par)),"\n")
-
-
-
 maxfn<-function(x) {
       	n<-length(x)
 	ss<-seq(1,n)
@@ -261,27 +250,18 @@ maxfn<-function(x) {
 gmaxfn<-function(x) {
      gg<-grad(maxfn, x) 
 }
-
-
 negmaxfn<-function(x) {
 	f<-(-1)*maxfn(x)
 	return(f)
 }
-
-
-
 cat("test that maximize=TRUE works correctly\n")
-
 n<-6
 xx<-rep(1,n)
 ansmax<-Rcgmin(xx,maxfn, control=list(maximize=TRUE,trace=1))
 print(ansmax)
-
 cat("using the negmax function should give same parameters\n")
 ansnegmax<-Rcgmin(xx,negmaxfn, control=list(trace=1))
 print(ansnegmax)
-
-
 #####################  From Rvmmin.Rd
 cat("test bounds and masks\n")
 nn<-4
@@ -290,14 +270,12 @@ lo<-rep(2,nn)
 up<-rep(10,nn)
 grbds1<-Rcgmin(startx,genrose.f, gr=genrose.g,lower=lo,upper=up) 
 print(grbds1)
-
 cat("test lower bound only\n")
 nn<-4
 startx<-rep(pi,nn)
 lo<-rep(2,nn)
 grbds2<-Rcgmin(startx,genrose.f, gr=genrose.g,lower=lo) 
 print(grbds2)
-
 cat("test lower bound single value only\n")
 nn<-4
 startx<-rep(pi,nn)
@@ -305,7 +283,6 @@ lo<-2
 up<-rep(10,nn)
 grbds3<-Rcgmin(startx,genrose.f, gr=genrose.g,lower=lo) 
 print(grbds3)
-
 cat("test upper bound only\n")
 nn<-4
 startx<-rep(pi,nn)
@@ -313,59 +290,44 @@ lo<-rep(2,nn)
 up<-rep(10,nn)
 grbds4<-Rcgmin(startx,genrose.f, gr=genrose.g,upper=up) 
 print(grbds4)
-
 cat("test upper bound single value only\n")
 nn<-4
 startx<-rep(pi,nn)
 grbds5<-Rcgmin(startx,genrose.f, gr=genrose.g,upper=10) 
 print(grbds5)
-
-
-
 cat("test masks only\n")
 nn<-6
 bd<-c(1,1,0,0,1,1)
 startx<-rep(pi,nn)
 grbds6<-Rcgmin(startx,genrose.f, gr=genrose.g,bdmsk=bd) 
 print(grbds6)
-
 cat("test upper bound on first two elements only\n")
 nn<-4
 startx<-rep(pi,nn)
 upper<-c(10,8, Inf, Inf)
 grbds7<-Rcgmin(startx,genrose.f, gr=genrose.g,upper=upper) 
 print(grbds7)
-
-
 cat("test lower bound on first two elements only\n")
 nn<-4
 startx<-rep(0,nn)
 lower<-c(0,1.1, -Inf, -Inf)
 grbds8<-Rcgmin(startx,genrose.f,genrose.g,lower=lower, control=list(maxit=2000)) 
 print(grbds8)
-
 cat("test n=1 problem using simple squares of parameter\n")
-
 sqtst<-function(xx) {
    res<-sum((xx-2)*(xx-2))
 }
-
 gsqtst<-function(xx) {
     gg<-2*(xx-2)
 }
-
 ######### One dimension test
 nn<-1
 startx<-rep(0,nn)
 onepar<-Rcgmin(startx,sqtst,  gr=gsqtst,control=list(trace=1)) 
 print(onepar)
-
 cat("Suppress warnings\n")
 oneparnw<-Rcgmin(startx,sqtst,  gr=gsqtst,control=list(dowarn=FALSE,trace=1)) 
 print(oneparnw)
-
 }
-
 \keyword{nonlinear}
 \keyword{optimize}
-
