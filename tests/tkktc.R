@@ -1,5 +1,9 @@
+# tkktc.R -- test how kkt check works
+##  author: John C. Nash
+# rm(list=ls())
 cat("Show how kktc works\n")
 require(optimx)
+sessionInfo()
 
 jones<-function(xx){
    x<-xx[1]
@@ -23,8 +27,8 @@ ans <- list() # set up structure
 
 
 # can call following if optimx present and updated
-# ans <- optimr(xx, jones, jonesg, method="Rvmmin")
-# ans
+ans <- optimr(xx, jones, jonesg, method="Rvmmin")
+ans
 
 ans$par <- c(3.154083, -3.689620)
 kkans <- kktchk(ans$par, jones, jonesg)

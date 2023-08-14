@@ -1,7 +1,80 @@
 ## optimx-package.R 
 ## This file contains support routines (methods) for the optimx() function
 ##################################################################
-summary.opm <- summary.optimx <- function(object, order = NULL, par.select = TRUE, ...) {
+summary.opm <- function(object, order = NULL, par.select = TRUE, ...) {
+	# internally object is referred to as x and par.select as par
+	x <- object
+	par <- par.select
+
+	# first npar columns of object are the parameters
+        npar <- attr(x,"npar")
+        status <- attr(x, "status")
+#  parameter selection
+	if (is.character(par)) {
+		idx <- which(par %in% names(x))
+	} else if (is.logical(par)) { 
+		idx <- which(rep(par, length = npar))
+	} else if (is.numeric(par)) {
+                idx <- intersect(par, seq_len(npar))
+	} else stop("par.select must be character, logical or numeric")
+    selidx <- union(idx, (npar+1):ncol(x))
+#        x <- x[, selidx]
+    cns<-rep("",npar)
+        for (j in 1:npar) { cns[[j]]<- paste("s",j,sep='')}
+#        status<- status[, idx] # This is removing columns
+#        cns <- cns[idx]
+    cnx <- colnames(x) # always have > 1 column in x so OK
+    cnx[which(cnx == "convergence")]<-"conv"
+
+	# xx same as x except:
+	# - it has a rownames column
+	# - it has a natural column reflecting the input ordering
+        # - it has status added at end
+	# - if objective maximized then value column negated
+	xx <- cbind(rownames = rownames(x), x, status, natural=1:nrow(x))
+        maximize <- attr(x,"maximize")
+	# if (maximize) xx$value <- - xx$value ## Already reset in optimr() on return
+# names for xx
+        cnxx <- c("rownames", cnx, cns, "natural")
+        colnames(xx)<-cnxx
+ 	# try to evaluate order using standard evaluation
+	order.try <- try(order, silent = TRUE)
+	# did it work?
+	if (is.null(order.try)) order.try <- "natural"
+	e <- if (!inherits(order.try, "try-error") && is.character(order.try)) {
+          # if all components are names then convert to a string
+	  if (all(order.try %in% names(xx))) {
+	     order.try <- paste0("list(", toString(order.try), ")")
+	  }
+          # order.try is now the string representation of an R expression
+	  # so parse it
+	  e <- parse(text = order.try)
+	} else substitute(order)
+
+	# perform non-standard evaluation (as in transform and subset functions)
+	order. <- eval(e, xx, parent.frame())
+	# ensure order. is a list
+	if (!is.list(order.)) order. <- list(order.)
+	o <- do.call(base::order, order.)
+#	x <- x[o, ]
+        nsel <- length(idx)
+#        rownames, (npar parameters), value, counts (3), conv, kkt1, kkt2, xtime,
+#           1         2:(npar+1)     (npar+2)    +3       +1    +1    +1    +1 -> npar+9
+        colset <- NULL
+## Merge the parameters and indexes
+        if (nsel > 0) {
+          for (ii in 1:nsel){ colset<-c(colset, (idx[ii]+1), (idx[ii]+npar+9)) }
+        }
+        colset <- c(colset, (npar+2):(npar+9))
+	x <- xx[o, colset ]
+        colnames(x) <- cnxx[colset]
+	# ensure details attribute corresponds to data
+	attr(x, "details") <- attr(x, "details")[rownames(x), ]
+	x
+}
+##################################################################
+## For optimx -- keep original form
+summary.optimx <- function(object, order = NULL, par.select = TRUE, ...) {
 	
 	# internally object is referred to as x and par.select as par
 	x <- object

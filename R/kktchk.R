@@ -7,7 +7,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
 #  fval = objective function value
 #  ngr = gradient evaluated at parameters par
 #  nHes = Hessian matrix evaluated at the parameters par
-#  nbm = number of active bounds and masks from gHgenb (gHgen returns 0)
+#  nbm = number of active bounds and masks
 #  maximize = logical TRUE if we want to maximize the function. Default FALSE.
 #  control = list of controls, currently, 
 #            kkttol=1e-3, kkt2tol=1e-6, ktrace=FALSE
@@ -44,9 +44,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    }
 
    bdout <- bmchk(par, lower = lower, upper = upper, bdmsk = NULL, 
-                 trace = control$trace, tol = NULL, shift2bound = FALSE) 
-   #   print(bdout)
-   # should we have shift2bound TRUE here??
+                 trace = control$trace, shift2bound = FALSE) 
    nfree <- sum(bdout$bdmsk[which(bdout$bdmsk==1)])
    nbm <- npar - nfree
    if (control$trace > 0) cat("Number of free parameters =",nfree,"\n")
@@ -76,10 +74,10 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    if (control$trace > 0) {
       cat("max abs projected gradient element =",gmax,"  test tol = ",kkttol*(1.0+abs(fval)),"\n")
    }
-   kkt1<-(gmax <= kkttol*(1.0+abs(fval)) ) # ?? Is this sensible?
+   kkt1<-(gmax <= kkttol*(1.0+abs(fval)) ) # Is this sensible?
    if (control$trace > 0) {cat("KKT1 result = ",kkt1,"\n") }
 
-   if (is.null(hess)) { 
+   if (is.null(hess)) { # ?? do we want to tag this so we know what type of computation? 
       if (is.character(gr)){
          nHes <- hessian(func=fn, par, ...) # use numDeriv
       } else {
@@ -100,7 +98,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
 #   if (!inherits(hev, "try-error")) {
 #     if (control$trace > 0) {
 #        cat("Hessian eigenvalues of unconstrained Hessian:\n")
-#        print(hev) # ?? no check for errors
+#        print(hev) # no check for errors
 #     }
 #   } else { 
 #      warning("Error during computation of unconstrained Hessian eigenvalues") 
@@ -110,6 +108,11 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
 #   }
 
    pHes <- nHes # projected Hessian
+#   cat("max asymmetry:", max(abs(pHes-t(pHes))), "\n")
+   if (! isSymmetric(unname(pHes))  ) {
+      warning("kktchk: pHes not symmetric -- symmetrizing")
+      pHes <- 0.5*(pHes + t(pHes))
+   }
    pHes[which(bdout$bdmsk != 1), ] <- 0.0
    pHes[ ,which(bdout$bdmsk != 1)] <- 0.0
    if (nfree > 0) {
@@ -118,7 +121,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
      if (! inherits(phev,"try-error")) {
         if (control$trace > 0) {
           cat("Hessian eigenvalues of constrained Hessian:\n")
-          print(phev) # ?? no check for errors
+          print(phev) # no check for errors
         }
         # now look at Hessian
         negeig<-(phev[npar] <= (-1)*kkt2tol*(1.0+abs(fval))) # 20100711 kkt2tol

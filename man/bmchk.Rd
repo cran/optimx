@@ -20,7 +20,7 @@ The package bmchk is essentially a test of the R function bmchk(), which is like
 incorporated within optimization codes.
 }
 \usage{
-   bmchk(par, lower=NULL, upper=NULL, bdmsk=NULL, trace=0, tol=NULL, shift2bound=TRUE)   
+   bmchk(par, lower=NULL, upper=NULL, bdmsk=NULL, trace=0, offset=100, shift2bound=TRUE)
 }
 \arguments{
  \item{par}{A numeric vector of starting values of the optimization function parameters.}
@@ -33,8 +33,10 @@ incorporated within optimization codes.
      parameter is at a lower bound (bdmsk element set to -3) or upper bound (-1).}
  \item{trace}{An integer that controls whether diagnostic information is displayed.
               A positive value displays information, 0 (default) does not.}
- \item{tol}{If provided, is used to detect a MASK, that is, lower=upper for some
-     parameter.}
+ \item{offset}{If provided, is used to detect equality of numbers. That is, two 
+     values \code{a} and \code{b} are taken as equal if \code{a + offset} is 
+     equal to \code{b + offset}. Default value is 100. Note that in previous versions
+     of this code a tolerance \code{tol} was used.}
  \item{shift2bound}{If TRUE, non-masked paramters outside bounds are adjusted 
      to the nearest bound. We then set parchanged = TRUE which implies the 
      original parameters were infeasible.
@@ -55,16 +57,20 @@ incorporated within optimization codes.
 
 \value{
   A list with components:
-  \item{bvec}{The vector of parameters, possibly adjusted for bounds. Parameters 
-         outside bounds are adjusted to the nearest bound.}
+  \item{bvec}{The vector of parameters, possibly adjusted to bounds. Parameters 
+         outside bounds are adjusted to the nearest bound. We let \code{n} be the
+         length of this vector.}
   \item{bdmsk}{adjusted input masks}
-  \item{bchar}{indicator for humans -- "-","L","F","U","+","M"
-               for out-of-bounds-low, lower bound, free, 
-               upper bound, out-of-bounds-high, masked (fixed)}
-  \item{lower}{(adjusted) lower bounds. If upper-lower<tol, we create a mask
-         rather than leave bounds. In this case we could eliminate the bounds.
-         At the moment, this change is NOT made, but a commented line of code
-         is present in the file \code{bmchk.R}.}
+  \item{bchar}{a set of indicators that give information about the parameters, that is,
+               if they are out-of-bounds-low ("-"), at a lower bound ("L"), 
+               free ("F"), at an upper bound ("U"), out-of-bounds-high ("+"), 
+               masked (fixed) ("M"), of unknown characteristics ("?""), or 
+               inadmissible ("!"").}
+  \item{lower}{(adjusted) lower bounds. If there are no lower bounds, a vector
+         of values equal to -Inf is substituted. Similarly, a single value is
+         expanded to a complete vector.
+         If any upper and lower bounds are equal (as mediated by \code{offset}),
+         we create a mask.}
   \item{upper}{(adjusted) upper bounds}
   \item{nolower}{TRUE if no lower bounds, FALSE otherwise}
   \item{noupper}{TRUE if no upper bounds, FALSE otherwise}
@@ -87,9 +93,9 @@ incorporated within optimization codes.
 \examples{
 #####################
 
-cat("25-dimensional box constrained function\n")
-flb <- function(x)
-    { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
+## cat("25-dimensional box constrained function\n")
+## flb <- function(x)
+##     { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
 
 start<-rep(2, 25)
 cat("\n start:")

@@ -1,5 +1,9 @@
+# tfnchk.R
+##  author: John C. Nash
+# rm(list=ls())
 cat("Show how fnchk works\n")
 require(optimx)
+sessionInfo()
 
 # Want to illustrate each case.
 # Ben Bolker idea for a function that is NOT scalar

@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{Rvmmin15}
   %\usepackage[utf8]{inputenc}
-bibliography: Rvmmin.bib
+bibliography: Extend-optimx.bib
 ---
 
 # Rvmmin description, examples and tests
@@ -20,7 +20,9 @@ as modified by @cnm79.
 This vignette is intended to show various features of the 
 package, so it is rather detailed and "busy". However, it 
 is also hopefully helpful in showing how to use the method
-for more difficult problems. 
+for more difficult problems. Note that as of 2023-6-21, the
+function `nvm()` is being developed to work under the 
+`optimr()` function as a more compact alternative.
 
 
 ## Algorithm implementation

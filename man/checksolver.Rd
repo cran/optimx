@@ -1,5 +1,6 @@
 \name{checksolver}
 \alias{checksolver}
+\alias{checkallsolvers}
 \encoding{UTF-8}
 \title{Test if requested solver is present}
 \concept{minimization}
@@ -9,6 +10,7 @@
 }
 \usage{
    checksolver(method, allmeth, allpkg)
+   checkallsolvers()
 }
 \arguments{
  \item{method}{Character string giving the name of the solver requested.}
@@ -17,7 +19,13 @@
      solvers are found.}
 }
 \value{
-  \code{checksolver} tests if requested function minimization solver is present.
+  If the solver defined by character string in \code{method} is
+   available, then \code{checksolver} returns this string, else NULL.
+   
+  \code{checkallsolvers()} returns a vector of strings that are the
+  names of missing solvers, else NULL if all solvers specified in \code{allmeth}
+  are present where \code{allmeth} is returned from a call to \code{ctrldefault(n)} 
+  where \code{n} is some integer.
 }
 \examples{
    allmeth <- c("Rvmmin", "nlminb","ipopttest")

@@ -1,16 +1,16 @@
 \name{snewton}
 \alias{snewton}
-\alias{snewtonm}
+\alias{snewtm}
 \encoding{UTF-8}
 \title{Safeguarded Newton methods for function minimization using R functions.}
-\description{These version of the safeguarded Newton solves the equations with
+\description{These versions of the safeguarded Newton solve the Newton equations with
 the R function solve(). In \code{snewton} a backtracking line search is used,
 while in \code{snewtonm} we rely on a Marquardt stabilization.
 }
 \usage{
    snewton(par, fn, gr, hess, control = list(trace=0, maxit=500), \dots)
 
-   snewtonm(par, fn, gr, hess, control = list(trace=0, maxit=500), \dots)
+   snewtm(par, fn, gr, hess, bds, control = list(trace=0, maxit=500))
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -23,6 +23,7 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
    returns the gradient as a numeric vector.}
  \item{hess}{A function to compute the Hessian matrix. This should be provided as a square,
       symmetric matrix.}
+ \item{bds}{Result of \code{bmchk()} for the current problem. Contains lower and upper etc.}
  \item{control}{
     An optional list of control settings.
  }
@@ -30,6 +31,8 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
 }
 
 \details{
+  \code{snewtm} is intended to be called from \code{optimr()}.
+
   Functions \code{fn} must return a numeric value. \code{gr} must return a vector.
   \code{hess} must return a matrix. 
    The \code{control} argument is a list. See the code for \code{snewton.R} for completeness.
@@ -55,17 +58,23 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
    \item{defstep}{Initial stepsize default (default 1)}
    \item{reltest}{Additive shift for equality test (default 100.0)}
   }
+  The (unconstrained) solver \code{snewtonmu} proved to be slower than the bounded solver
+  called without bounds, so has been withdrawn.
+
+  The \code{snewton} safeguarded Newton uses a simple line search but no linear solution
+  stabilization and has demonstrated POOR performance and reliability. NOT recommended.
 }
 
 \value{
   A list with components:
   
   \describe{
-  \item{xs}{The best set of parameters found.}
-  \item{fv}{The value of the objective at the best set of parameters found.}
-  \item{grd}{The value of the gradient at the best set of parameters found. A vector.}
-  \item{H}{The value of the Hessian at the best set of parameters found. A matrix.}
-  \item{niter}{The number of Newton iterations used in finding the solution.}
+  \item{par}{The best set of parameters found.}
+  \item{value}{The value of the objective at the best set of parameters found.}
+  \item{grad}{The value of the gradient at the best set of parameters found. A vector.}
+  \item{hessian}{The value of the Hessian at the best set of parameters found. A matrix.}
+  \item{counts}{A vector of 4 integers giving number of Newton equation solutions, the number of function
+      evaluations, the number of gradient evaluations and the number of hessian evaluations.}
   \item{message}{A message giving some information on the status of the solution.}
   }
 
@@ -109,9 +118,17 @@ x0 <- c(-1.2, 1)
 
 sr <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
 print(sr)
-
-srm <- snewtonm(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
+# Call through optimr to get correct calling sequence, esp. with bounds
+srm <- optimr(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
 print(srm)
+
+# bounds constrained example
+
+lo <- rep((min(x0)-0.1), 2)
+up <- rep((max(x0)+0.1), 2)
+# Call through optimr to get correct calling sequence, esp. with bounds
+srmb <- optimr(x0, fn=f, gr=gr, hess=h, lower=lo, upper=up, control=list(trace=1))
+proptimr(srmb)
 
 
 #Example 2: Wood function
@@ -145,10 +162,9 @@ w0 <- c(-3, -1, -3, -1)
 wd <- snewton(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
 print(wd)
 
-wdm <- snewtonm(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
+# Call through optimr to get correct calling sequence, esp. with bounds
+wdm <- optimr(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
 print(wdm)
-
-
 
 }
 

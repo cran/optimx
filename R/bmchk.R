@@ -1,7 +1,12 @@
 bmchk <- function(par, lower = NULL, upper = NULL, 
-    bdmsk = NULL, trace = 0, tol = NULL, shift2bound = TRUE) {
+    bdmsk = NULL, trace = 0, offset = 100.0, shift2bound = TRUE) {
+## 
+## 2022-3-14 Issues:
+## - bdmsk on input should be checked SEPARATELY from bounds and masks for consistency
+## - for setting mask (maskadded flag) want to use offset (formerly tol method)
+## 
     ## Bounds and masks check
-    #  ?? check use of par and bvec -- can we simplify?
+    #  !!? check use of par and bvec -- can we simplify?
     # 20101031 -- issue of bounds not working correctly
     #  - -Inf seems to upset bounds
     #  - no upper bounds gives troubles (applies to Rcgmin too!)
@@ -21,7 +26,8 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     #   or upper bound (-1)
     # trace = control of output: 0 for none (default), >0 for
     #   output
-    # tol = tolerance for closeness of upper and lower bounds
+    # offset = shift value to test for closeness of upper and lower bounds
+    #   (a + offset) =?= (b + offset) avoids use of a tolerance
     # shift2bound = TRUE if we adjust par values so they are
     #   feasible
     ##
@@ -29,14 +35,15 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     #    A list with components:
     #     bvec: The parameters adjusted to the nearest bound.
     #     bdmsk: adjusted input masks
-    #     bchar: indicator for humans -- "-","L","F","U","+","M"
+    #     bchar: indicator for humans -- "-","L","F","U","+","M","?","!"
     #        for out-of-bounds-low, lower bound, free, 
-    #            upper bound, out-of-bounds-high, masked (fixed)
+    #            upper bound, out-of-bounds-high, masked (fixed),
+    #            unknown (?), inadmissible (!)
     #     lower: adjusted lower bounds
     #     upper: adjusted upper bounds
     #     nolower: TRUE if no lower bounds, FALSE otherwise
     #     noupper: TRUE if no upper bounds, FALSE otherwise
-    #     bounds:  TRUE if any bounds, FALSE otherwise
+    #     bounds:  TRUE if any bounds, FALSE otherwise ?? at moment confused about masks being bounds
     #     admissible: TRUE if admissible, FALSE if not
     #        No lower bound exceeds an upper bound. That is the 
     #        bounds themselves are sensible. This condition has 
@@ -55,118 +62,97 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     bvec <- par
     ############# bounds and masks ################
     # set default masks if not defined
-    bchar <- rep("F",n) # make sure these are defined
-    if (is.null(bdmsk)) {
-#        cat("setting bdmsk\n")
-        bdmsk <- rep(1, n)
-    }
-    if (trace > 2) {
-        cat("bdmsk:")
-        print(bdmsk)
-    }
-    # check if there are bounds
-    if (is.null(lower) || !any(is.finite(lower))) 
-        nolower <- TRUE
+    bchar <- rep(" ",n) # initialize indicators to "blank"
+    if (is.null(bdmsk)) { bdmsk <- rep(1, n) } # initialize to free if null
+    if (trace > 2) { cat("bdmsk:"); print(bdmsk) }
+    # check if there are bounds (non null and no finite values)
+    if (is.null(lower) || !any(is.finite(lower))) nolower <- TRUE
     else nolower <- FALSE
-    if (is.null(upper) || !any(is.finite(upper))) 
-        noupper <- TRUE
+    if (is.null(upper) || !any(is.finite(upper))) noupper <- TRUE
     else noupper <- FALSE
-    if (nolower && noupper && all(bdmsk == 1)) 
-        bounds <- FALSE
-    else bounds <- TRUE
-    if (trace > 2) 
-        cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
+    if (nolower && noupper && all(bdmsk == 1)) bounds <- FALSE
+    else bounds <- TRUE  # bounds indicator now set
+    if (trace > 2) cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
             " bounds = ", bounds, "\n")
-    if (nolower) 
-        lower <- rep(-Inf, n)
-    if (noupper) 
-        upper <- rep(Inf, n)
+    if (nolower) lower <- rep(-Inf, n)
+    if (noupper) upper <- rep(Inf, n)
 
 ## adjust tolerance for masks and parameters ON bounds
-    if (is.null(tol) || tol <= 0.0) {
-       tol <- .Machine$double.eps * max(abs(par), 1) # use par as bounds Inf
+#    if (is.null(tol) || tol <= 0.0) {
+#       tol <- .Machine$double.eps * max(abs(par), 1) # use par as bounds Inf
+#    }
+    if (trace > 1) {
+        cat("Initial parameters:"); print(par)
     }
     ######## check bounds and masks #############
-    parchanged <- FALSE  ## must be set BEFORE if (bounds) ...; 
-                         ## equivalent to feasible<-TRUE
-    feasible <- TRUE
-    admissible <- TRUE  # similarly must set before we look at bounds
-    maskadded <- FALSE  # similarly set here
-    onbound <- FALSE
-    if (bounds) {
-        # Make sure to expand lower and upper
+    parchanged <- FALSE  # must be set BEFORE if (bounds) ...; 
+                         # initialized to indicate parameters NOT changed
+    feasible <- TRUE    # initially assume parameters are feasible
+    admissible <- TRUE  # similarly admissible (must set before we look at bounds)
+    maskadded <- FALSE  # indicate no masks added
+    onbound <- FALSE    # indicate NOT on bounds
+    if (bounds) {  # Make sure to expand lower and upper
         if (!nolower & (length(lower) < n)) 
-            {
-                if (length(lower) == 1) {
-                  lower <- rep(lower, n)
-                }
-                else {
-                  stop("1<length(lower)<n")
-                }
-            }  # else lower OK
+        {   if (length(lower) == 1) { lower <- rep(lower, n) }
+            else { stop("1<length(lower)<n") }
+        }  # else lower OK
         if (!noupper & (length(upper) < n)) 
-            {
-                if (length(upper) == 1) {
-                  upper <- rep(upper, n)
-                }
-                else {
-                  stop("1<length(upper)<n")
-                }
-            }  # else upper OK
+        {   if (length(upper) == 1) { upper <- rep(upper, n) }
+            else { stop("1<length(upper)<n") }
+        }  # else upper OK
         # At this point, we have full bounds in play
         ######## check admissibility ########
         if (any(lower[which(bdmsk != 0)] > upper[which(bdmsk != 0)])) admissible <- FALSE
         if (trace > 0) cat("admissible = ", admissible, "\n")
-        if (any((upper - lower) < tol)) { # essentially masked
-            makemask<-which(upper - lower < tol)
-            warning("Masks (fixed parameters) set by bmchk due to tight bounds. CAUTION!!")
+        if ( any((upper+offset) == (lower + offset)) ) { # essentially masked
+            makemask<-which((upper + offset) == (lower + offset))
             if (trace > 0) {
                cat("Imposing mask as lower ~= upper for following parameters\n")
                print(makemask)
             }
-            bdmsk[makemask] <- 0
-            bchar[makemask] <- "M"
-            # lower[makemask]<- -Inf
-            # upper[makemask]<-  Inf
+            # force parameters to the masked values
+            bvec[makemask] <- lower[makemask] + 0.5*(upper[makemask] - lower[makemask])
+            if (any(bvec != par)) { 
+               parchanged <- TRUE 
+               warning("Masks (fixed parameters) set by bmchk due to tight bounds. CAUTION!!")
+            }
+            bdmsk[makemask] <- 0 # set bchar below
             maskadded <- TRUE
         }
         if (trace > 0) cat("maskadded = ", maskadded, "\n")
         ######## check feasibility ########
-        if (admissible) {# This implementation as a loop, but try later to vectorize
+        if (admissible) { # This implementation as a loop, but try later to vectorize
             for (i in 1:n) {
                 if (bdmsk[i] == 0) {
-                  bchar[i] <- "M"
-                  # NOTE: we do not change masked parameters, even if out of
-                  #   bounds
-                  if (!nolower) {
+                  bchar[i] <- "M" # NOTE: do not change masked parameters, 
+                                  # even if out of bounds
+                  if (!nolower) { # there is a lower bound
                     if (bvec[i] < lower[i]) {
-                      if (trace > 0) {
+                      if (trace > 0) { 
                         cat("WARNING: ", bvec[i], " = MASKED x[", 
                           i, "] < lower bound = ", lower[i], "\n")
                       }
                       feasible <- FALSE
                     }
                   }
-                  if (!noupper) {
+                  if (!noupper) { # there is an upper bound
                     if (bvec[i] > upper[i]) {
-                        if (trace > 0){
+                      if (trace > 0){
                         cat("WARNING: ", bvec[i], " = MASKED x[", 
-                        i, "] > upper bound = ", upper[i], "\n")
-                        }
-                        feasible<-FALSE
+                          i, "] > upper bound = ", upper[i], "\n")
+                      }
+                      feasible<-FALSE
                     }
                   }
                 }
-                else { # not masked, so must be free or active constraint
-                  if (!nolower) {
-                    if (bvec[i] <= lower[i]) {
-                      # Gave trouble 130924 -- <= not < -- bmtest in nlpor
-                      # changed 090814 to ensure bdmsk is set; 110105 < not <=
-                      if (bvec[i] != lower[i]){
+                else { # par[i] not masked, so must be free or active constraint
+                  if (!nolower) { # there are lower bounds
+                    if (bvec[i] <= lower[i]) { # on or below lower bound
+                      if ((offset+bvec[i]) < (offset+lower[i])){
                          bdmsk[i] <- -3.5 # OUT OF BOUNDS LOW
                          bchar[i] <- "-"
                          feasible<-FALSE
-                         if (shift2bound) {
+                         if (shift2bound) { # allow shift of parameter
                             parchanged <- TRUE
                             if (trace > 0) cat("WARNING: x[", i, "], set ", 
                                  bvec[i], " to lower bound = ", lower[i], "\n")
@@ -179,11 +165,10 @@ bmchk <- function(par, lower = NULL, upper = NULL,
                          bchar[i] <- "L"
                       }
                     }
-                  } # nolower
-                  if (!noupper) {
-                    if (bvec[i] >= upper[i]) {
-                      # changed 090814 to ensure bdmsk is set; 110105 > not >=
-                      if (bvec[i] != upper[i]){
+                  } # ! nolower
+                  if (!noupper) { # there are upper bounds
+                    if (bvec[i] >= upper[i]){ # on or above upper bound
+                      if ((offset+bvec[i]) > (offset+upper[i])) {
                          bdmsk[i] <- -0.5 # OUT OF BOUNDS HIGH
                          bchar[i] <- "+"
                          feasible<-FALSE
@@ -206,19 +191,32 @@ bmchk <- function(par, lower = NULL, upper = NULL,
                ## both FALSE (out of bounds)
             }  # end loop for bound/mask check
         } # if admissible
+        else { # NOT admissible. 
+           bchar <- rep("!",n)
+        }
+        if (trace > 1) {
+           cat("lower:"); print(lower)
+           cat("upper:"); print(upper)
+        }
     } # if bounds
     if (trace > 0) 
         cat("parchanged = ", parchanged, "\n")
-    if (any(bvec == lower) || any(bvec == upper)){
+    if ((trace > 1) && parchanged) {
+       cat("changed par:"); print(par)
+    }
+    if (any((bvec+offset) == (lower+offset)) || any((bvec+offset) == (upper+offset)) ) {
         onbound <- TRUE
         if (trace > 0) cat("At least one parameter is on a bound\n")
     }
+    if ((trace > 0) && (! is.null(attr(bvec,"status"))) ) {
+        cat("existing parameter status:"); print(attr(bvec,"status")) 
+    }
+    attr(bvec,"status")<-bchar # (re)set status
     ############## end bounds check #############
     bcout <- list(bvec, bdmsk, bchar, lower, upper, nolower, noupper, 
         bounds, admissible, maskadded, parchanged, feasible, onbound)
     names(bcout) <- c("bvec", "bdmsk", "bchar", "lower", "upper", "nolower", "noupper", 
        "bounds", "admissible", "maskadded", "parchanged", "feasible", "onbound")
-    # Note bdmsk, lower and upper are returned because they are
-    #   modified (length, etc.)
+    # Note bdmsk, lower and upper are returned because they are modified (length, etc.)
     return(bcout)
-}  ## end of bmchk.R 
+}  ## end of bmchk.R

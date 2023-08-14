@@ -85,7 +85,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     trace <- ctrl$trace  # 0 for no output, >0 for output (bigger => more output)
     if (trace > 2) cat("trace = ", trace, "\n")
     eps <- ctrl$eps
-    fargs <- list(...)  # the ... arguments that are extra function / gradient data
+# removed 230620    fargs <- list(...)  # the ... arguments that are extra function / gradient data
     grNULL <- is.null(gr)
     dowarn <- ctrl$dowarn  #
     #############################################
@@ -462,7 +462,9 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     newstep <- 2 * (f - fmin - gradproj * steplength)  # JN 081219 change
                     if (newstep > 0) {
                       newstep = -(gradproj * steplength * steplength/newstep)
-                    }
+                    } # !!!!former BUG -- what happens when newstep <= 0?
+                    else newstep <- 2*steplength # 20220627 try a doubling
+
                     if (bounds) 
                       {
                         # Box constraint -- adjust step length

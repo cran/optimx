@@ -74,7 +74,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     #
     #
     #  Author:  John C Nash
-    #  Date:  April 2, 2009; revised July 28, 2009
+    #  Date:  April 2, 2009; revised July 28, 2009; revised 2022-11-27
     #################################################################
     # control defaults -- idea from spg
     if (is.null(control$trace)) control$trace=0
@@ -92,20 +92,21 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
         cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
             " bounds = ", bounds, "\n")
     if (is.null(gr)) {
-       gr <- "grfwd" # use forward gradient approximation if no gradient code provided
-       if (control$trace > 0) cat("WARNING: forward gradient approximation being used\n")
-    } else {
-       if (is.character(gr)) { # assume numerical gradient
-           if (control$trace > 0) cat("WARNING: using gradient approximation ",gr,"\n")
-
-       } else { # analytic gradient, so check if requested
-           if (is.null(control$checkgrad)) control$checkgrad <- FALSE
-           if (control$checkgrad) { # check gradient
-              testgrad<-grchk(par, fn, gr, trace=control$trace, ...)
-              if (! testgrad) warning("Gradient code for Rcgmin may be faulty - check it!")
-           }
-       } # end else
+        stop("Rcgmin must have gradient function provided. Call via optimr() to use approximations.")
+#       gr <- "grfwd" # use forward gradient approximation if no gradient code provided
+#       if (control$trace > 0) cat("WARNING: forward gradient approximation being used\n")
     }
+#    } else {
+#       if (is.character(gr)) { # assume numerical gradient
+#           if (control$trace > 0) cat("WARNING: using gradient approximation ",gr,"\n")
+#       } else { # analytic gradient, so check if requested
+#           if (is.null(control$checkgrad)) control$checkgrad <- FALSE
+#           if (control$checkgrad) { # check gradient
+#              testgrad<-grchk(par, fn, gr, trace=control$trace, ...)
+#              if (! testgrad) warning("Gradient code for Rcgmin may be faulty - check it!")
+#           }
+#       } # end else
+#    }
     control$checkgrad<-NULL # to avoid problems in subsidiary routines
     if (is.null(control$dowarn)) control$dowarn<-TRUE
     #############################################
@@ -121,6 +122,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
              if (is.null(control$keepinputpar) || ! control$keepinputpar) { 
                  warning("Parameter out of bounds has been moved to nearest bound")
                  control$keepinputpar<-NULL # avoid problems in subsidiary routines
+                 par <- btest$bvec
              } else stop("Parameter out of bounds")
           }
        }

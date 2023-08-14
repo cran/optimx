@@ -154,10 +154,9 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   FORTRAN code of Birgin, Martinez, and Raydan (2001). 
 
   Method \code{"Rcgmin"} is from the package of that name. It implements a
-  conjugate gradient algorithm with the Yuan/Dai update (ref??) and also 
+  conjugate gradient algorithm with the Dai and Yuan (2001) update and also 
   allows bounds constraints on the parameters. (Rcgmin also allows mask 
-  constraints -- fixing individual parameters -- but there is no interface
-  from \code{"optimx"}.) 
+  constraints -- fixing individual parameters.) 
 
   Methods \code{"bobyqa"}, \code{"uobyqa"} and \code{"newuoa"} are from the 
   package \code{"minqa"} which implement optimization by quadratic approximation
@@ -384,15 +383,35 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 }
 \references{
 
- See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{suggests}.
+ See also  the manual pages for \code{optim()} and the packages the DESCRIPTION \code{suggests}.
 
- Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
+  Byrd RH, Lu P, Nocedal J (1995) A Limited Memory Algorithm for Bound Constrained Optimization,
+      SIAM Journal on Scientific Computing, 16 (5), 1190--1208.
+
+  Y. H. Dai and Y. Yuan, (2001) An Efficient Hybrid Conjugate Gradient Method for Unconstrained
+  Optimization, Annals of Operations Research, 103, pp 33--47, 
+  URL http://dx.doi.org/10.1023/A:1012930416777.
+
+  Dennis JE and Schnabel RB (1983) Numerical Methods for Unconstrained Optimization and Nonlinear Equations,
+     Englewood Cliffs NJ: Prentice-Hall.
+
+
+   Fletcher R (1970) A New Approach to Variable Metric Algorithms, Computer Journal,
+     13 (3), 317-322.
+
+  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
      URL http://www.jstatsoft.org/v43/i09/.
 
- Nash JC (2014). On Best Practice Optimization Methods in R., 
+  Nash JC (2014). On Best Practice Optimization Methods in R., 
         \emph{Journal of Statistical Software}, 60(2), 1-14.,
         URL http://www.jstatsoft.org/v60/i02/.
+        
+  Nelder JA and Mead R (1965) A Simplex Method for Function Minimization,
+     Computer Journal, 7 (4), 308--313.
+
+  Powell MJD (2009) The BOBYQA algorithm for bound constrained optimization 
+      without derivatives, http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2009_06.pdf      
 
 }
 

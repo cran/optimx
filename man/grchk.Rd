@@ -49,11 +49,12 @@ and compare this to the result of function \code{ggr}.
 
 
 \value{
-\code{grchk} returns a single object \code{gradOK} which is true if the differences 
+\code{grchk} returns a single object \code{gradOK} which is TRUE if the differences 
 between analytic and approximated gradient are small as measured by the tolerance 
 \code{testtol}.
 
-This has attributes "ga" and "gn" for the analytic and numerically approximated gradients.
+This has attributes "ga" and "gn" for the analytic and numerically approximated gradients,
+and "maxdiff" for the maximum absolute difference between these vectors.
 
 At the time of preparation, there are no checks for validity of the gradient code in
 \code{ggr} as in the function \code{fnchk}.
@@ -68,7 +69,7 @@ At the time of preparation, there are no checks for validity of the gradient cod
 }
 
 \examples{
-# Would like examples of success and failure. What about "near misses"??
+# Would like examples of success and failure. What about "near misses"?
 cat("Show how grchk works\n")
 require(numDeriv)
 # require(optimx)

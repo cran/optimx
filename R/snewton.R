@@ -2,28 +2,36 @@ snewton<-function(par, fn, gr, hess, control=list(trace=0, maxit=500),...) {
 ## Safeguarded Newton minimizer with backtrack line search
 ##
 ##Input
+##       - par is the initial set of parameter values in vector
 ##       - fn is the function we wish to minimize
-##?? fixup documentation here??
-##       - par is the initial value
-##       - ... is data used in the function fn
-##Output (list) -- need to match optim() output!! ???
-##       - xs is the value at the minimum
+##       - gr is gradient function (required)
+##       - hess is hessian function (required)
+##       - control is control list (see ctrldefault.R)
+##       - ... (dotargs) is exogenous data used in the function fn
+##Output (list) -- Note that this does not perfectly match optim() output!!
+##       - xs is the parameter vector at the minimum
 ##       - fv is the fn evaluated at xs
-##       - grd is the gradient
-##       - Hess is the Hessian
+##       - grd is the gradient value (vector)
+##       - Hess is the Hessian matrix (note capitalization of this list element name)
 ##       - niter is the number of interations needed (gradient and Hessian evals).
-##       - add fevals??, other reports
+##       - counts a list of work measures 
+##             niter = number of "iterations" i.e., Newton steps
+##             nfn   = number of function evaluations
+##             ngr   = number of gradient evaluations
+##             nhess = number of hessian evaluations
+##       - convcode is a number indicating status at termination (0 means OK)
+##       - message is a text string returned to indicate status on termination 
 
 npar <- length(par)
 nf <- ng <- nh <- niter <- 0 # counters
 
-ctrldefault <- list(
+ctrldefault <- list( ## ?? this should be replaced with call to ctrldefault()
   trace = 0,
   maxit = 500,
   maxfeval = npar*500,
   acctol = 0.0001,
   epstol = .Machine$double.eps,
-  stepdec = 0.2, 
+  stepredn = 0.2, 
   stepmax = 5,
   stepmin = 0,
   offset = 100.0,
@@ -40,6 +48,8 @@ for (onename in nctrld) {
   }
 }
 trace <- control$trace # convenience
+  out<-NULL # Need this here in case of error return
+  if (trace > 2) cat("snewton for problem in ",npar," parameters\n")
   msg <- "Snewton - no msg"
   xb <- par # best so far
   fbest <- fn(xb, ...)
@@ -51,7 +61,7 @@ trace <- control$trace # convenience
     grd<-gr(xb,...) # compute gradient
     ng <- ng + 1
     halt <- FALSE # default is keep going
-    # tests on too many counts??
+    # tests on too many counts
     if (niter > control$maxit) {
       if (trace > 0) cat("Too many (",niter,") iterations\n")
       halt <- TRUE
@@ -62,7 +72,7 @@ trace <- control$trace # convenience
       msg <- paste("Too many (",nf," function evaluations")
       if (trace > 0) cat(msg,"\n")
       halt <- TRUE
-      convcode <- 91 # ?? value
+      convcode <- 91 # value choice?
       break
     }
     gmax <- max(abs(grd))
@@ -78,17 +88,35 @@ trace <- control$trace # convenience
 #    if (trace > 0) {cat("Iteration ",niter,":")}
     H<-hess(xb,...)
     nh <- nh + 1
-    d<-try(solve(H, -grd))
+#    eH <- eigen(H, symmetric=TRUE)
+#    if (min(eH$values) < 0.1*max(abs(H))*.Machine$double.eps) {       
+      d<-try(solve(H, -grd)) # tried change to solve.qr as solve.default seems
+          # to give trouble (i.e., error that is not trappable
+      if (trace > 3) print(d)
+ #   } 
+#    else { # failure
+#    cat("test inherits try error\n")
     if (inherits(d, "try-error")) {
-          stop("Failure of default solve of Newton equations")
+          msg <- "Failure of default solve of Newton equations"
+          if (trace > 0) cat("msg","\n")
+          out$par<-xb
+          out$value<-fbest
+          out$grad<-grd
+          out$hessian<-H
+          out$counts <- list(niter=niter,  nfn=nf, ngr=ng, nhess=nh)
+          out$convcode <- 9030
+          out$message <- msg 
+#          cat("out"); print(out)         
+          return(out)
     }
     if (trace > 2) {
          cat("Search vector:")
          print(d)
     }
     gprj <- as.numeric(crossprod(d, grd))
+    if (! is.finite(gprj)) stop("Cannot compute gradient projection")
     if (trace > 0) cat("Gradient projection = ",gprj,"\n")
-# ?? Do we want a test on size of gprj
+# Do we want a test on size of gprj?
     st <- control$defstep
     if (gprj > 0) st <- -st # added 180330 to allow downhill
     xnew <- xb + st*d # new point
@@ -115,7 +143,7 @@ trace <- control$trace # convenience
     while ((fval > fbest + control$acctol*abs(st)*gprj) # 180330 Note abs(st)
            && (all((control$offset+xnew) != (control$offset+xb)))) { 
         # continue until satisfied
-        st <- st * control$stepdec
+        st <- st * control$stepredn
         if (trace > 1) cat("Stepsize now =",st,"\n")
         xnew <- xb + st*d # new point
         fval <- fn(xnew, ...)    
@@ -136,11 +164,10 @@ trace <- control$trace # convenience
     fbest <- fval
     if (control$watch) { tmp <- readline("end iteration") }
   } # end repeat
-  out<-NULL
   out$par<-xb
   out$value<-fbest
   out$grad<-grd
-  out$Hess<-H
+  out$hessian<-H
   out$counts <- list(niter=niter,  nfn=nf, ngr=ng, nhess=nh)
   out$convcode <- convcode
   out$message <- msg

@@ -1,6 +1,6 @@
 hesschk <- function(xpar, ffn, ggr, hhess, trace=0, testtol=(.Machine$double.eps)^(1/3), ...) {
    # check Hessian code in hess for function in fn and gradient in gr
-   asymtol<-testtol # ?? may want to change this
+   asymtol<-testtol # May want to change this.
    hessOK<-FALSE
    if (is.null(hhess)) {
       attr(hessOK, "nullhess")<-TRUE
@@ -21,9 +21,11 @@ hesschk <- function(xpar, ffn, ggr, hhess, trace=0, testtol=(.Machine$double.eps
 #         if (trace > 0) cat(msg,"\n")
 #      }
       if (is.null(ggr)) {
-         hn <- hessian(func=ffn, x=xpar, ...) 
+         ffn1 <- function(xpar) ffn(xpar, ...) # avoid dotarg name clash
+         hn <- hessian(func=ffn1, x=xpar) 
       } else {
-         hn <- jacobian(func=ggr, x=xpar, ...)
+         ggr1<- function(xpar) ggr(xpar, ...) # avoid dotarg name clash
+         hn <- jacobian(func=ggr1, x=xpar)
       }
       asym<-0.0 # to ensure defined
       if (!isSymmetric(hn)) {
@@ -39,7 +41,7 @@ hesschk <- function(xpar, ffn, ggr, hhess, trace=0, testtol=(.Machine$double.eps
           } else hessOK <- TRUE
           hn <- 0.5 * (t(hn) + hn)
       }  # end if ! isSymmetric
-      # Now test for equality ?? again have to consider tolerance
+      # Now test for equality. Again have to consider tolerance values
       fval<-ffn(xpar, ...) #  Could consider providing this externally
       if (max(abs(hn-ha))/(1 + abs(fval)) >= testtol) {
          hessOK<-FALSE
@@ -53,4 +55,4 @@ hesschk <- function(xpar, ffn, ggr, hhess, trace=0, testtol=(.Machine$double.eps
    } # end gradient/hessian tests
    hessOK
 }
-## >>> End of code common to funtest, funcheck and optimx, with mods for local needs
+

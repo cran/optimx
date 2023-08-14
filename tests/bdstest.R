@@ -1,7 +1,27 @@
-rm(list=ls())
+# rm(list=ls())
+##  author: John C. Nash
 # fname<-paste(format(Sys.time(), "%Y%m%d%H%M"),"-btRvmmin.out",sep='')
 # sink(fname, append=TRUE, split=TRUE)
 require("optimx")
+# Following is used when starting from opx21 directory
+# source("optimx/tests/simplefun.R")
+# Following is for use in package testing
+# Simple Test Function 1:
+simfun.f = function(x) { 
+     fun <- sum(x^2 )
+#	print(c(x = x, fun = fun))
+     fun
+}
+simfun.g = function(x) { 
+     grad<-2.0*x
+     grad
+}
+simfun.h = function(x) { 
+     n<-length(x)
+     t<-rep(2.0,n)
+     hess<-diag(t)
+}
+sessionInfo()
 #####################
 
 # This test script illustrates the use of bounds in optimr() with the
@@ -10,15 +30,6 @@ require("optimx")
 # Masks are tested at the very end for the two methods for which they are
 # available. Note that they must be called via the opm() function.
 
-
-# Simple bounds test for n=4
-bt.f<-function(x){
- sum(x*x)
-}
-
-bt.g<-function(x){
-  gg<-2.0*x
-}
 
 n<-4
 lower<-rep(0,n)
@@ -39,62 +50,77 @@ cat("upper bounds:")
 print(upper)
 
 cat("Rvmmin \n\n")
-# Note: trace set to 0 below. Change as needed to view progress. 
 
-abtrvm <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", control=list(trace=0))
+abtrvm <- optimr(xx, simfun.f, simfun.g, lower=lower, upper=upper, 
+        method="Rvmmin", control=list(trace=0))
 # Note: use lower=lower etc. because there is a missing hess= argument
-print(abtrvm)
+proptimr(abtrvm)
 
 cat("Axial search")
-axabtrvm <- axsearch(abtrvm$par, fn=bt.f, fmin=abtrvm$value, lower, upper, bdmsk=NULL, 
-              trace=0)
+axabtrvm <- axsearch(abtrvm$par, fn=simfun.f, fmin=abtrvm$value, lower, upper, bdmsk=NULL)
 print(axabtrvm)
 
 cat("Now force an early stop\n")
-abtrvm1 <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", 
+abtrvm1 <- optimr(xx, simfun.f, simfun.g, lower=lower, upper=upper, method="Rvmmin", 
                   control=list(maxit=1, trace=0))
 print(abtrvm1)
 cat("Axial search")
-axabtrvm1 <- axsearch(abtrvm1$par, fn=bt.f, fmin=abtrvm1$value, lower, upper, bdmsk=NULL, 
-                     trace=0)
+axabtrvm1 <- axsearch(abtrvm1$par, fn=simfun.f, fmin=abtrvm1$value, lower, upper, bdmsk=NULL)
 print(axabtrvm1)
 
 
 cat("Maximization test\n")
-mabtrvm <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", 
+mabtrvm <- optimr(xx, simfun.f, simfun.g, lower=lower, upper=upper, method="Rvmmin", 
                  control=list(trace=1, maximize=TRUE))
 # Note: use lower=lower etc. because there is a missing hess= argument
 print(mabtrvm)
 cat("Do NOT try axsearch() with maximize\n")
 cat("KKT condition check\n")
-akktm <- kktchk(mabtrvm$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maximize=TRUE, control=list(trace=0))
+akktm <- kktchk(mabtrvm$par, simfun.f, simfun.g, hess=NULL, upper=upper, lower=lower,  
+              maximize=TRUE, control=list(trace=0))
 print(akktm)
 
-
-
-
-alb<-optimr(xx,bt.f, bt.g, lower=lower, upper=upper, method="L-BFGS-B", 
+alb<-optimr(xx,simfun.f, simfun.g, lower=lower, upper=upper, method="L-BFGS-B", 
             control=list(trace=0))
 print(alb)
 
 cat("KKT condition check\n")
-alkkt <- kktchk(alb$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maximize=FALSE, control=list(trace=0))
+alkkt <- kktchk(alb$par, simfun.f, simfun.g, hess=NULL, upper=upper, lower=lower,  maximize=FALSE, control=list(trace=0))
 print(alkkt)
 
-alhn<-optimr(xx, bt.f, lower=lower, upper=upper, method="hjn", 
+alhn<-optimr(xx, simfun.f, lower=lower, upper=upper, method="hjn", 
              control=list(trace=0))
 print(alhn)
 
 #sink()
 cat("All bounded methods attempt with opm\n")
 
-allbds <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=0))
+allbds <- opm(xx, simfun.f, simfun.g, lower=lower, upper=upper, method="ALL", control=list(trace=0))
 print(summary(allbds, order=value))
 
 cat("Now force a mask upper=lower for parameter 3 and see what happens\n")
 lower[3] <- upper[3]
 xx[3] <- lower[3] # MUST reset parameter also
 
-allbdm <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=0))
+
+ncgbdm <- optimr(xx, simfun.f, simfun.g, lower=lower, upper=upper, method="ncg", 
+                 control=list(trace=1, watch=TRUE))
+proptimr(ncgbdm)
+
+## lbfmsk <- optim(xx, simfun.f, simfun.g, lower=lower, upper=upper, method="L-BFGS-B", 
+##                  control=list(trace=1, watch=TRUE))
+## proptimr(ncgbdm)
+
+allbdm <- try(opm(xx, simfun.f, simfun.g, lower=lower, upper=upper, method="ALL", 
+               control=list(trace=2)))
 print(summary(allbdm, order=value))
 
+mmth <- ctrldefault(2)$maskmeth
+allmsk <- try(opm(xx, simfun.f, simfun.g, lower=lower, upper=upper, method=mmth, 
+                  control=list(trace=2)))
+print(summary(allmsk, order=value))
+
+
+#?? fails, and ncg never stops
+#allbdm <- opm(xx, simfun.f, simfun.g, lower=lower, upper=upper, method=c("ncgqs"), control=list(trace=2))
+#allbdm

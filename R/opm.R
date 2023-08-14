@@ -2,9 +2,12 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             method=c("Nelder-Mead","BFGS"), hessian=FALSE,
             control=list(),
              ...) {
-
+  fname <- as.list(sys.call())$fn #FAILED rlang::as_name(as.list(sys.call())$fn)
+  # test for missing functions
+  tmp <- is.null(fn) # will fail if undefined
+  tmp <- is.null(gr) # will fail if undefined, but not if missing from call
   npar <- length(par)
-  pstring<-names(par)
+  pstring<-names(par) # the names of the parameters
   npar <- length(par)
   ctrl <- ctrldefault(npar)
   ncontrol <- names(control)
@@ -19,60 +22,98 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   ## 180706: Should we try to streamline?
   if(control$trace > 0) cat("opm: wrapper to call optimr to run multiple optimizers\n")
 
-  fnscale <- 1 # default to ensure defined
-  if (is.null(control$fnscale)) {
-     if (! is.null(control$maximize) && control$maximize ) {fnscale <- -1}
-  else if (! is.null(control$maximize)) {
-          if ( (control$fnscale < 0) && control$maximize) {fnscale <- -1} # this is OK
-          else stop("control$fnscale and control$maximize conflict")
-       } # end ifelse
-  } # end else
+  fnscale <- 1.0 # default to ensure defined and MINIMIZING
+  if (! is.null(control$maximize)){ 
+      if ( control$maximize ) {fnscale <- -1.0} 
+  }
+  else { # control$maximize is NULL, so control$fnscale defines behaviour
+      fnscale <- control$fnscale # default is 1.0
+      if (fnscale < 0) control$maximize<-TRUE # reset maximize if it was null
+      # reset may be needed for kkt check later in opm.
+  } # control$maximize has precedence over control$fnscale
   control$fnscale <- fnscale # to ensure set again
 
-  allmeth <- control$allmeth
+  allmeth <- control$allmeth[ - which(control$allmeth %in% control$weakmeth) ]
   # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
   bdmeth <- control$bdmeth
 
   maskmeth <- control$maskmeth
-  # Masks: As at 2016-6-28 do NOT provide for masks in package optimr
-
+  # Masks: As at 2016-6-28 did NOT provide for masks in abandoned package optimr
 
   bmtst <- bmchk(par, lower=lower, upper=upper)
+  # Check for onbound and "nmkb" %in% method list
+  if (bmtst$onbound && ("nmkb" %in% method)) { # remove nmkb from method
+    method <- method[ - which(method == "nmkb")]
+    if (control$trace > 0) cat("Start is on bound. Methods include nmkb.\n")
+    warning("Removing nmkb from method list in opm() because start is on bound")
+  } 
+  if (length(method) < 1) stop("No methods requested for opm()")
   control$have.bounds <- bmtst$bounds # and set a control value
   bdmsk <- bmtst$bdmsk # Only need the masks bit from here on
   # These are set free (1) or set -1 for upper bounds, -3 for lower bounds
   # At this stage should NOT have masks (Or could they be added if upper=lower by bmchk
   control$have.masks <- any(bdmsk == 0)
 
-  if (length(method) == 1 && method == "ALL") control$all.methods <- TRUE
-  if (control$all.methods) {
-       if (control$have.masks) { method <- maskmeth }
-       else { if (control$have.bounds) { method <- bdmeth }
-              else { method <- allmeth }
-       }
+  # 20230614 -- MOST method addition
+  if (control$all.methods) method <- allmeth # set list of methods
+  if (length(method) == 1) {
+      if (method == "ALL") {
+          control$all.methods <- TRUE
+          method <- allmeth # and change to a vector
+      } else {
+        if (method == "MOST"){ # has to be inside or method now length > 1
+          method <- control$mostmeth # set to most methods
+        }
+      }
   }
+  mti <- method
+  lmth <- length(method)
+  
+  method <- unique(method) # in case user has duplicates
+  if (length(method) < lmth) warning("Duplicate methods requested -- rendered unique")
+  method <- intersect(method, allmeth)
+  if (length(method) < lmth)warning("Method requested NOT in available set allmeth")
+#  if (length(method) > 1) {
+    if (control$have.bounds) { 
+      method <- intersect(method,bdmeth) 
+      if (length(method) < lmth) warning("method requested does not handle bounds")
+    }
+    if ( is.null(hess) ) { # remove snewton and snewtonm when no hessian
+      if ( "snewton" %in% method ) {
+           method <- method[-which(method == "snewton")]
+           warning("'snewton' removed from 'method' -- no hess()")
+      }
+      if ( "snewtonm" %in% method ) {
+           method <- method[-which(method == "snewtonm")]
+           warning("'snewtonm' removed from 'method' -- no hess()")
+      }
+    }
+#  }
+  # 20220221: fixup for methods NOT suitable for bounds
+  method <- unlist(method) # ?? needed?
+  if (control$have.bounds) method <- method[which(method %in% bdmeth)]
+  # end fixup
   nmeth <- length(method)
+  if (nmeth < 1) stop("No suitable methods requested for opm()")
 
   if (is.null(pstring)) {
       for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
   } 
-   cnames <- c(pstring, "value", "fevals", "gevals", "convergence", "kkt1", "kkt2", "xtime")
-   ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+7)
-  if (control$trace > 2) {
-      print(ans.ret)
-      tmp <- readline("continue after printing ans.ret initial")
-  }
+  cnames <- c(pstring, "value", "fevals", "gevals", "hevals", "convergence", "kkt1", "kkt2", "xtime")
+  ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+8) # add hevals 230619
   ans.ret <- data.frame(ans.ret)
+  ans.status <- matrix(" ",nrow=nmeth, ncol=npar)
+#  ans.ptype <- rep(" ",npar)
   colnames(ans.ret)<-cnames
   row.names(ans.ret)<-method
   ans.details <- list()
   if (control$trace > 2) {
-     cat("width of ans.ret =", npar+7,"\n")
+     cat("width of ans.ret =", npar+8,"\n")
      print(dim(ans.ret))
   }
   for (i in 1:nmeth) {
-    meth <- method[i] # extract the method name
+    meth <- method[[i]] # extract the method name. Note double brackets or get list of length 1.
     if (control$trace > 0) cat("Method: ",meth,"\n")
     # Note: not using try() here
     if (is.character(gr) && (control$trace>0)) 
@@ -86,15 +127,17 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 ## Post-processing -- Kuhn Karush Tucker conditions
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
       if (control$trace>0) { cat("Post processing for method ",meth,"\n") }
+#      cat("opm - post processing: ans$convergence=",ans$convergence,"\n")
       if (exists("ans$message")) {
            amsg<-ans$message
-           ans$message <- NULL # ?? do we need this
+           ans$message <- NULL # Safety. Do we need this?
       } else { amsg <- "none" }
       ngatend <- NA
       nhatend <- NA
       hev <- NA
-      ans$gevals <- ans$counts[2]
-      ans$fevals <- ans$counts[1]
+      ans$gevals <- ans$scounts[2]
+      ans$fevals <- ans$scounts[1]
+      ans$hevals <- ans$scounts[3]
       ans$kkt1<-NA
       ans$kkt2<-NA
       kktres <- list(gmax=NA, evratio = NA, kkt1=NA, kkt2=NA, 
@@ -102,8 +145,9 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       if ( control$save.failures || (ans$convergence < 1) ){
            # Save soln if converged or directed to save
           if ((control$trace > 0) && (ans$convergence==0)) cat("Successful convergence! \n") 
-# Testing final soln. Use numDeriv for gradient & Hessian; compute Hessian eigenvalues
-           if ((control$kkt || hessian) && (ans$convergence < 9900)) { # chg 160917 for no gradient
+          if (control$trace > 3) cat("ans$convergence=",ans$convergence,"\n") # ??
+          if ((control$kkt || hessian) && (ans$convergence < 9000)) { 
+             # chg 160917 for no gradient, 220330 for snewton solve failure
              wgr <- gr
              if (is.null(wgr)) wgr <- control$defgrapprox
              kktres <- kktchk(ans$par, fn, wgr, hess=NULL, upper=NULL, lower=NULL, 
@@ -123,13 +167,18 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
              cat("ans.ret now\n")
              print(ans.ret)
           }
-          addvec <- c(ans$par, ans$value, ans$fevals, ans$gevals, 
+          addvec <- c(ans$par, ans$value, ans$fevals, ans$gevals, ans$hevals,
                               ans$convergence, ans$kkt1, ans$kkt2, ans$xtimes)
 	  if (control$trace > 2) { 
              cat("length addvec = ", length(addvec),"\n")
              print(addvec)
           }
-          ans.ret[meth, ] <- addvec
+          ans.ret[i, ] <- addvec
+#          ans.ptype[i]  <- attr(ans$value,"ptype")
+#          cat("ans.ptype:\n"); print(ans.ptype)
+          statusvec <- attr(ans$par, "status")
+#          cat("statusvec:");print(statusvec)
+          ans.status[i, ] <- statusvec
       }  ## end post-processing of successful solution
       ans.details<-rbind(ans.details, list(method=meth, ngatend=kktres$ngatend, 
              nhatend=kktres$nhatend, hev=kktres$hev, message=amsg))
@@ -140,12 +189,15 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     if (length(ans$par) > 0) { # cannot save if no answers
 	ansout <- ans.ret # Don't seem to need drop=FALSE
         attr(ansout, "details")<-ans.details
+        attr(ansout, "status")<-ans.status
+#        attr(ansout, "ptype")<-ans.ptype
         ansout[, "kkt1"] <- as.logical(ansout[, "kkt1"])
         ansout[, "kkt2"] <- as.logical(ansout[, "kkt2"])
     }
     ansout # return(ansout)
     answer <- structure(ansout, details = ans.details, maximize = control$maximize,
             npar = npar, class = c("opm", "data.frame"))
-
+    attr(answer,"fname") <- fname
+    answer
 } ## end of opm
 

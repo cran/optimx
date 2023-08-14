@@ -14,13 +14,13 @@ polyopt <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
    colnames(ans.ret) <- cnames
    row.names(ans.ret) <- 1:nmeth
    cpar <- par # use initial parameters here
-# ?? may want a lot of checks here
+# We want a lot of checks here
    for (imeth in 1:nmeth){
        meth <- as.character(methcontrol[imeth,1]) # name of method
        cat("Method ",imeth," :",meth,"\n")
        control$maxit <- methcontrol[[imeth,2]]
        control$maxfeval <- methcontrol[imeth,3]
-   ## ?? do we need this -- should be able to handle infinite or null bounds
+## Do we need this -- should be able to handle infinite or null bounds?
        if ((is.null(lower) && is.null(upper)) || (is.infinite(lower) && is.infinite(upper))) {
 #           cat("calling optimr unconstrained\n")
            ans <- optimr(cpar, fn=fn, gr=gr, 
@@ -39,5 +39,4 @@ polyopt <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
        ans.ret[imeth,] <- addvec
    }
    ans.ret
-
 } ## end of polyopt

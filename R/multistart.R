@@ -20,9 +20,8 @@ multistart <- function(parmat, fn, gr=NULL, lower=-Inf, upper=Inf,
        ans <- optimr(par=start, fn=fn, gr=gr, lower=lower, upper=upper, 
             method=method, hessian=hessian, control=control, ...)
        addvec <- c(ans$par, ans$value, ans$counts[1], ans$counts[2], ans$convergence)
-       print(addvec)
+       # print(addvec)
        ans.ret[imeth,] <- addvec
    }
    ans.ret
-
 } ## end of multistart

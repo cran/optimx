@@ -1,7 +1,7 @@
 optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
-            control=list(),
-             ...) {
+            control=list()) { # 230625 NO dotargs
+##            control=list(),...) {
 
 ### To return in optcfg: fname, npar ??, method, ufn, ugr, ctrl, have.bounds
 
@@ -16,6 +16,13 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # Only one ref to parameters -- to get npar here
   npar <- length(par) # !! NOT CHECKED in case par not well-defined
   optcfg$npar <- npar
+
+# 20211028 -- trap variable name clash.
+#  print(...names())
+##  if ("x" %in% names(list(...))) {
+##     stop("You appear to have a variable 'x' in the dot arguments of your function. NOT allowed.")
+##  }
+
 
 # Set control defaults
     ctrl <- list(
@@ -86,17 +93,17 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
  		stop("Mixing controls maximize and fnscale is dangerous. Please correct.")
         } # moved up 091216
         optcfg$ctrl$maximize<-TRUE
-        ufn <- function (par, ...) { # negate the function for maximizing
-	   val<-(-1.)*fn(par,...)
+        ufn <- function (par) { # negate the function for maximizing
+	   val<-(-1.)*fn(par)
         } # end of ufn = negfn
         if (! is.null(gr)) { 
-           ugr <- function(par, userfn=ufn, ...) {
-               gg <- (-1)*gr(par, ...)
+           ugr <- function(par, userfn=ufn) {
+               gg <- (-1)*gr(par)
            }
         } else { ugr <- NULL } # ensure it is defined
         if (! is.null(hess) ) {
-           uhess <- function(par, ...) {
-               hh <- (-1)*hess(par, ...)
+           uhess <- function(par) {
+               hh <- (-1)*hess(par)
            }
         } else { uhess <- NULL } # ensure it is defined
   } else { 
@@ -106,8 +113,8 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   if (is.null(gr) && ctrl$dowarn && ctrl$usenumDeriv) {
      warning("Replacing NULL gr with 'numDeriv' approximation")
      optcfg$usenumDeriv<-TRUE
-     ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
-        tryg<-grad(userfn, par, ...)
+     ugr <- function(par, userfn=ufn) { # using grad from numDeriv
+        tryg<-grad(userfn, par)
      } # Already have negation in ufn if maximizing
   }
   optcfg$ufn <- ufn

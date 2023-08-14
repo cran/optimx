@@ -1,4 +1,8 @@
+# run1param.R
+##  author: John C. Nash
+# rm(list=ls())
 require(optimx)
+sessionInfo()
 
 # Note that solving 1 dimensional problems with multi-dimensional
 # minimizers can be unpredictable!
@@ -23,10 +27,16 @@ require(optimx)
   abrent <- optim(x0, f1, lower=lb, upper=ub, method="Brent", control=list(trace=0))
   print(abrent)
 
-  ansone<-opm(x0, f1, g1, method = c("Rvmmin", "Rcgmin"), control=list(trace=0))
+# My own Rvmmin and Rcgmin handle 1D
+  ansone2<-opm(x0, f1, g1, method = c("Rvmmin", "Rcgmin"), control=list(trace=0))
+  ansone2.sum<-summary(ansone2, order=value)
+  print(ansone2.sum)
+
+  ansone<-opm(x0, f1, g1, method = "ALL", control=list(trace=0))
   ansone.sum<-summary(ansone, order=value)
   print(ansone.sum)
-
+# Most methods actually do OK  
+  
 # test 2
   x0 = 1
   cat("Start with x0=1. Use optim() with method='Brent' \n")

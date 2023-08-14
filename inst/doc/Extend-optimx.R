@@ -37,13 +37,12 @@ print(newpar)
 # Then also think of the transfinite approach for bounds on unconstrained
 ## Or even for bounds methods but using unconstrained part.
 
-
 ## -----------------------------------------------------------------------------
   nlmfn <- function(spar, ...){
      f <- efn(spar, ...)
      g <- egr(spar, ...)
      attr(f,"gradient") <- g
-     attr(f,"hessian") <- NULL # ?? maybe change later
+     attr(f,"hessian") <- NULL # ? maybe change later
      f
   }
 
@@ -78,5 +77,4 @@ print(newpar)
   }
   control <- ctrl # note the copy back! control now has a FULL set of values
   print(control$maxit)
-
 

@@ -2,7 +2,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   upper = NULL, bdmsk = NULL, control = list(), ...) {
   #
   #  Author:  John C Nash
-  #  Date:  , April 14, 2018 -- update to fix infinite loop
+  #  Date:    Dec 6, 2021 update
   #
   ## An R version of the Nash version of Fletcher's Variable
   #   Metric minimization -- bounds constrained parameters
@@ -103,6 +103,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   reltest <- ctrl$reltest
   stopbadupdate <- ctrl$stopbadupdate
   fargs <- list(...)  # the ... arguments that are extra function / gradient data
+  smallstep <- reltest*.Machine$double.eps # 20230727 fix for neg trystep
 #################################################################
   # check if there are bounds
   if (is.null(lower) || !any(is.finite(lower))) 
@@ -115,8 +116,6 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
      bounds = FALSE
      stop("Do not use Rvmminb() without bounds.")
   } else { bounds = TRUE }
-
-  cat("trace=",trace,"\n") # This is not picked up -- Why?
 
   if (trace > 1) {
      cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
@@ -133,8 +132,8 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
      print(fargs)
   }
   ifn <- 1  # count function evaluations
-  stepredn <- 0.2  # Step reduction in line search
-  reltest <- 100  # relative equality test
+#  stepredn <- 0.2  # Step reduction in line search
+#  reltest <- 100  # relative equality test
   ceps <- .Machine$double.eps * reltest
   dblmax <- .Machine$double.xmax  # used to flag bad function
   #############################################
@@ -154,7 +153,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   ############# end test gr ####################
   # Assume bounds already checked 150108
   f<-try(fn(bvec, ...), silent=TRUE) # Compute the function.
-  if ((inherits(f, "try-error")) | is.na(f) | is.null(f) | is.infinite(f)) {
+  if (inherits(f,"try-error") | is.na(f) | is.null(f) | is.infinite(f)) {
      msg <- "Initial point gives inadmissible function value"
      conv <- 20
      if (trace > 0) 
@@ -261,11 +260,11 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
         ####      Backtrack only Line search                ####
         changed <- TRUE  # Need to set so loop will start
         steplength <- oldstep # 131202 - 1 seems best value (Newton step)
-        while ((f >= fmin) && changed && (!accpoint)) {
+        while (changed && (!accpoint)) {
           # We seek a lower point, but must change parameters too
           ###if (bounds) { # MUST have bounds in Rvmminb
           # Box constraint -- adjust step length for free parameters
-          for (i in 1:n) { # loop on parameters -- vectorize??
+          for (i in 1:n) { # loop on parameters -- vectorize?
             if ((bdmsk[i] == 1) && (t[i] != 0)) {
               # only concerned with free parameters and non-zero search dimension
               if (t[i] < 0) {
@@ -277,6 +276,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
               }
               if (trace > 2) cat("steplength, trystep:", steplength, trystep, "\n")
               steplength <- min(steplength, trystep)  # reduce as necessary
+              if (steplength < smallstep) steplength <- 0 # force break for neg step
             }  # end steplength reduction
           }  # end loop on i to reduce step length
           # end box constraint adjustment of step length
@@ -318,13 +318,9 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
               keepgoing <- FALSE
               break
             }
-            if (f < fmin) {
-              # We have a lower point. Is it 'low enough' i.e.,
-              #   acceptable
-              accpoint <- (f <= fmin + gradproj * steplength * acctol)
-              if (trace > 2) cat("accpoint = ", accpoint,"\n")
-            }
-            else {
+            accpoint <- (f < fmin + gradproj * steplength * acctol) # NOTE: < not <=
+            if (trace > 2) cat("accpoint = ", accpoint,"\n")
+            if (! accpoint) {
               steplength <- steplength * stepredn
               if (trace > 0) cat("*")
             }
@@ -367,7 +363,44 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
           break
         }
         par <- bvec # save parameters since point acceptable
-        g[which(bdmsk <= 0)] <- 0  # adjust for active mask or constraint 
+## ERROR!!        g[which(bdmsk <= 0)] <- 0  # adjust for active mask or constraint 
+        if (bounds) 
+        { ## Bounds and masks adjustment of gradient ##
+          ## first try with looping -- later try to vectorize
+          if (trace > 2) {
+             cat("bdmsk:")
+             print(bdmsk)
+          }
+          for (i in 1:n) {
+             if ((bdmsk[i] == 0)) {
+                # masked, so gradient component is zero
+                g[i] <- 0
+             }
+             else {
+               if (bdmsk[i] == 1) {
+                 if (trace > 1) 
+                   cat("Parameter ", i, " is free\n")
+                 }
+                 else {
+                   if ((bdmsk[i] + 2) * g[i] < 0) {
+                     # test for -ve gradient at upper bound, +ve at lower bound
+                     g[i] <- 0  # active mask or constraint and zero gradient component
+                   }
+                   else {
+                     bdmsk[i] <- 1  # freeing parameter i
+                     if (trace > 1) 
+                        cat("freeing parameter ", i, "\n")
+                     }
+                   }
+              }
+           }  # end masking loop on i
+           if (trace > 2) {
+              cat("bdmsk adj:\n")
+              print(bdmsk)
+              cat("proj-g:\n")
+              print(g)
+           }
+        }  # end if bounds
         gnorm <- sqrt(sum(g*g)) ## JN131202 
         if (trace > 0) cat("ig=",ig,"  gnorm=",gnorm,"  ")
         if (gnorm < (1 + abs(fmin))*eps*eps ) {

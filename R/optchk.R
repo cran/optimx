@@ -32,7 +32,7 @@ optchk <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   if (! control$have.bounds) { # Don't do the check if we already know there are no bounds
      if (is.null(control$keepinputpar)) {shift2bound <- TRUE }
      else {shift2bound <- ! control$keepinputpar}
-     bc <- bmchk(par, lower=lower, upper=upper, bdmsk=rep(1,npar), tol=0, trace=control$trace, shift2bound)
+     bc <- bmchk(par, lower=lower, upper=upper, bdmsk=rep(1,npar), trace=control$trace, shift2bound)
      if (! bc$admissible) stop("At least one lower bound is > corresponding upper bound")
      if (infeasible && control$dowarn) warning("Parameters may be out of bounds")
      if (control$trace > 0) {

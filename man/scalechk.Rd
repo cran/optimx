@@ -3,23 +3,28 @@
 \encoding{UTF-8}
 \title{Check the scale of the initial parameters and bounds input to an optimization code
    used in nonlinear optimization}
-\description{Nonlinear optimization problems often have different scale for different
+   
+\description{
+Nonlinear optimization problems often have different scale for different
 parameters. This function is intended to explore the differences in scale. It is, however,
 an imperfect and heuristic tool, and could be improved.
 
-
-At this time scalechk does NOT take account of masks. (?? should 110702)
+At this time scalechk ignores parameters and bounds for fixed (masked) parameters
+for calculations of scaling measures. The rationale for this is that such parameters
+are outside the optimization process.
 }
+
 \usage{
    scalechk(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE)
 }
+
 \arguments{
  \item{par}{A numeric vector of starting values of the optimization function parameters.}
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
  \item{bdmsk}{An indicator vector, having 1 for each parameter that is "free" or
      unconstrained, and 0 for any parameter that is fixed or MASKED for the
-     duration of the optimization.}
+     duration of the optimization. May be NULL.}
  \item{dowarn}{Set TRUE to issue warnings. Othwerwise this is a silent routine.
                Default TRUE.}
 }
@@ -31,13 +36,6 @@ At this time scalechk does NOT take account of masks. (?? should 110702)
      We then set parchanged = TRUE which implies the original parameters
      were infeasible.
 
-     There is a check if lower and upper bounds are very close together, in 
-     which case a mask is imposed and maskadded is set TRUE. NOTE: it is 
-     generally a VERY BAD IDEA to have bounds close together in optimization,
-     but here we use a tolerance based on the double precision machine 
-     epsilon. Thus it is not a good idea to rely on scalechk() to test if 
-     bounds constraints are well-posed.
- 
 }
 
 \value{
@@ -49,7 +47,7 @@ At this time scalechk does NOT take account of masks. (?? should 110702)
 
   \item{lpratio}{The log of the ratio of largest to smallest parameters
        in absolute value (ignoring Inf, NULL, NA)}
-  \item{lbration}{The log of the ratio of largest to smallest bounds intervals 
+  \item{lbratio}{The log of the ratio of largest to smallest bounds intervals 
         (upper-lower) in absolute value (ignoring Inf, NULL, NA)}
 }
 \examples{

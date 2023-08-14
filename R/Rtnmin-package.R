@@ -20,7 +20,7 @@ ltest  <- (flast - f <= -0.5*gtp);
       ind   <- which( (ipivot != 0)  & (ipivot != 2))
       if ( length(ind) > 0 ) {  ## how to ensure ind not empty
          t <- -sum(ipivot[ind]*g[ind])
-         cmax <- min(t) # ?? why [cmax, imax] = min(t) ??
+         cmax <- min(t) # why [cmax, imax] = min(t) ?
          imax <- cmax
          if (cmax >= 0) { imax <- 0 }
       }
@@ -48,7 +48,7 @@ ierror <- 0
 if (any(low > up)) { ierror = - max(which(low > up))  } 
    # above is check on error in bounds specification
    xnew  <- pmax (low, x) # force params into bounds
-   xnew  <- pmin (up, xnew) # No diagnostic! ??
+   xnew  <- pmin (up, xnew) # No diagnostic!!?
    # we output revised parameters
    n <- length(x)
    ind <- which(low == x) 
@@ -86,7 +86,7 @@ initpc <- function(d, upd1, ireset) {
 ##---------------------------------------------------------
 ## initialize the diagonal preconditioner (d -- a vector!)
 ## ---------------------------------------------------------
-## global hyk sk yk sr yr yksk yrsr ?? do we have these
+## global hyk sk yk sr yr yksk yrsr # do we have these?
 #  global vectors hyk sk yk sr yr & scalars yksk yrsr
 ## ---------------------------------------------------------
 #%   cat("In initpc -- sk and hyk if upd1 false: ", upd1,"\n")
@@ -95,7 +95,7 @@ initpc <- function(d, upd1, ireset) {
       td <- d
    } else {
       if (ireset) {
-         envjn$hyk  <- d * envjn$sk # vector * vector by element??
+         envjn$hyk  <- d * envjn$sk # vector * vector by element?
          sds  <- as.numeric(crossprod(envjn$sk, envjn$hyk)) # matrix multiply
          if (all(envjn$hyk == 0) && trace > 1) { cat("INITPC: envjn$hyk = 0 \n") }
          if (sds == 0 && trace > 1) { cat("INITPC: sds = 0 \n") }
@@ -161,9 +161,9 @@ lin1 <- function(p, x, f, alpha, g, sfun, ...){
    nf1 <- itcnt 
 
    ## never used in SGN code
-   ## if (nargout == 7) { ## ?? what is nargout?
+   ## if (nargout == 7) { ## What is nargout?
    ##  dfdp <- as.numeric(crossprod(gt, p) )
-   ##  varargout{1} <- dfdp ## ?? what is varargout
+   ##  varargout{1} <- dfdp ## What is varargout?
    ## end
    result<-list(xnew=xnew, fnew=fnew, gnew=gnew, nf1=nf1,
           ierror=ierror, alpha1=alpha1)
@@ -184,11 +184,11 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
 ## ---------------------------------------------------------
    n <- length(x)
 
-# JN: Define globals here
+# JN: Define "globals" here
    gtn<-list(yrsr=0, yksk=0, yr = rep(0, n), yk = rep(0, n), 
         sr = rep(0, n),  sk = rep(0, n),
         hg=rep(0,n), hyk=rep(0,n), hyr=rep(0,n) )
-   envjn<<-list2env(gtn) # Note this important tool for globals in Rtnmin
+   envjn<<-list2env(gtn) # Note envjn is in parent environment
 # end globals
 
 ##   [ipivot, ierror, x] = crash(x, lower, upper) 
@@ -333,7 +333,7 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
           ## ############################
           cat('    |g|     = ', norm2(g), "\n") 
           cat('    |p|     = ', norm2(p), "\n") 
-          tmp <- readline('Hit any key to continue')
+#          tmp <- readline('Hit any key to continue')
           ## ############################
       } 
       ## #######################
@@ -608,7 +608,7 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
 ### Display info
       if (trace > 0) cat("Itn ",nit," ",nf," ",ncg, " ",f, " ", gnorm,"\n")
       if (ierror == 3) { 
-         if (length(ncg) == 0) { ncg <- 0 } # ?? is.null(ncg)??
+         if (length(ncg) == 0) { ncg <- 0 } # is.null(ncg)?
          xstar <- x 
          almqn<-list(xstar=xstar, f=f, g=g, ierror=ierror, nfngr=ncg)
          return(almqn)
@@ -805,7 +805,7 @@ modlnp <- function(d, x, g, maxit, upd1, ireset, bounds,
       ## cat("gv=", gv, "\n")
 #%       print(gv)
 #%       print(v)
-      v.gv[[k]] <- as.numeric(crossprod(v, gv))  ## ?? v.gv has underscore!! ??
+      v.gv[[k]] <- as.numeric(crossprod(v, gv))  ##  v.gv has underscore!!?
 #%       cat("v.gv[[",k,"]]=",v.gv[[k]],"\n")
       if (v.gv[[k]]/gnorm < tol) { 
          ind <- 50  
@@ -999,7 +999,7 @@ ndia3<-function(e, v, gv, r, vgv){
     }
   }
 #%   print(e)
-  e # Need to return the object?? Possibly not!
+  e # Need to return the object? Possibly not!!?
 }
 
 norm2 <- function (x) {

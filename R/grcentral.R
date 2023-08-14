@@ -1,6 +1,6 @@
 grcentral <- function(par, userfn, fbase=NULL, env=optsp, ...) {
    # Central difference gradient approximation
-   if (is.null(fbase)) fbase <- userfn(par, ...)  # ensure we function value at par
+   if (is.null(fbase)) fbase <- userfn(par, ...)  # function value at par
    eps <- env$deps
    df <- rep(NA, length(par))
    teps <- 0.5 * eps * (abs(par) + eps)

@@ -1,9 +1,6 @@
 bmstep <- function(par, srchdirn, lower=NULL, upper=NULL, bdmsk=NULL, trace=0) {  
 ## Find maximum steplength from par along srchdirn given bounds and masks
-# ?? do we want step length as multiple of srchdirn?, or actual max step length
-# 20101031 -- issue of bounds not working correctly
-#  - -Inf seems to upset bounds
-#  - no upper bounds gives troubles (applies to Rcgmin too!)
+# The answer is a step length as multiple of srchdirn
 #
 # Input:
 #  par = a vector containing the starting point
@@ -26,7 +23,7 @@ n<-length(par)
 # check if there are bounds
   if(is.null(lower) || ! any(is.finite(lower))) nolower<-TRUE else nolower<-FALSE
   if(is.null(upper) || ! any(is.finite(upper))) noupper<-TRUE else noupper<-FALSE
-# Next line NOT same as in bmchk(). Leave out bdmsk.
+# Next line NOT same as in bmchk function. Leave out bdmsk.
   if(nolower && noupper) bounds<-FALSE else bounds<-TRUE
   if (is.null(bdmsk)) bdmsk<-rep(1,n) # make sure we have values
   if (any(bdmsk==0)) {
@@ -77,12 +74,12 @@ n<-length(par)
      print(sslo)
      print(ssup)
   }
-  sslo<-sslo[which(sslo>0)]  
-  ssup<-ssup[which(ssup>0)]  
+  sslo<-sslo[which(sslo>0)] # Search step towards lower bd
+  ssup<-ssup[which(ssup>0)] # Search step towards upper bd  
   if (trace>0) {
      cat("steplengths, truncated, lower then upper\n")
-     if (length(sslo)>0) print(sslo) else cat("sslo NULL\n")
-     if (length(ssup)>0) print(ssup) else cat("ssup NULL\n")
+     if (length(sslo)>0) {cat("sslo:"); print(sslo)} else cat("sslo NULL\n")
+     if (length(ssup)>0) {cat("ssup:"); print(ssup)} else cat("ssup NULL\n")
   }
   if (is.null(sslo) && is.null(ssup)) {# Not needed, min will return Inf
        maxstep<-Inf

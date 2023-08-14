@@ -1,5 +1,7 @@
 optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf, 
-             hessian=FALSE, ctrl, have.bounds=FALSE, usenumDeriv=FALSE, ...) {
+             hessian=FALSE, ctrl, have.bounds=FALSE, usenumDeriv=FALSE) {
+# 230625 No dotargs now. Subsumed in optimx()
+##             hessian=FALSE, ctrl, have.bounds=FALSE, usenumDeriv=FALSE, ...) {
 ##            method=NULL, itnmax=NULL, hessian=FALSE,
 ##            ctrl=list(),...) {
 
@@ -48,7 +50,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 	  } 
   	} # end have.bounds
         # Check if function can be computed
-        firsttry<-try(finit<-ufn(par, ...), silent=TRUE ) # 20100711
+        firsttry<-try(finit<-ufn(par), silent=TRUE ) # 20100711
         # Note: This incurs one EXTRA function evaluation because optimx is a wrapper for other methods
         if (inherits(firsttry, "try-error")) {
     	   infeasible <- TRUE
@@ -70,9 +72,9 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
      if (! is.null(ugr) && ! usenumDeriv && ! is.character(ugr)){ # check gradient
        gname <- deparse(substitute(ugr))
        if (ctrl$trace>0) cat("Analytic gradient from function ",gname,"\n\n")
-          fval <- ufn(par,...) 
-          gn <- grad(func=ufn, x=par,...) # 
-          ga <- ugr(par, ...)
+          fval <- ufn(par) 
+          gn <- grad(func=ufn, x=par) # 
+          ga <- ugr(par)
 #130929          badgrad<-TRUE
 #130929          if (all(! is.na(ga)) & all(is.finite(ga))) badgrad<-FALSE
           # Now test for equality (090612: ?? There may be better choices for the tolerances.
@@ -87,8 +89,8 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
        if (! is.null(uhess) && ! is.character(uhess)){ # check Hessian - if character then numeric
           hname <- deparse(substitute(uhess))
           if (ctrl$trace>0) cat("Analytic hessian from function ",hname,"\n\n")
-          hn <- hessian(func=ufn, x=par,...) # ?? should we use dotdat
-          ha <- uhess(par, ...)
+          hn <- hessian(func=ufn, x=par) # ?? should we use dotdat
+          ha <- uhess(par)
           # Now test for equality
           teps <- (.Machine$double.eps)^(1/3)
           if (max(abs(hn-ha))/(1 + abs(fval)) >= teps) stop("Hessian function might be wrong - check it! \n", call.=FALSE)

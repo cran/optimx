@@ -30,14 +30,14 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
   #    trace = 0 (default) for no output,
   #            > 0 for output (bigger => more output)
   #    dowarn=TRUE by default. Set FALSE to suppress warnings.
-  #    checkgrad = TRUE by default. Check analytic gradient 
+  #    checkgrad = FALSE by default. Check analytic gradient 
   #            against numDeriv results.
   #    checkbounds = TRUE by default. Check parameters and bounds
   #            for addmissible bounds and feasible start.
   #    keepinputpar = FALSE if Rvmmin will move out-of-bound parameters
   #            to nearest bound WITH WARNING. This is default behaviour.
   #            If TRUE, stop execution. That is, do not allow starts to
-  #            be modified by bmchk(). This is only in Rvmmin(), not
+  #            be modified by bmchk function. This is only in Rvmmin(), not
   #            Rvmminu() or Rvmminb().
   #    eps = a tolerance used for judging small gradient norm
   #           (default = 1e-07). See code for usage.
@@ -110,7 +110,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
      if (is.character(gr)) { # assume numerical gradient
         if (control$trace > 0) cat("WARNING: using gradient approximation '",gr,"'\n")
      } else { # analytic gradient, so check if requested
-        if (is.null(control$checkgrad)) control$checkgrad <- TRUE
+        if (is.null(control$checkgrad)) control$checkgrad <- FALSE
         if (control$checkgrad) { # check gradient
            testgrad<-grchk(par, fn, gr, trace=control$trace, ...)
            if (! testgrad) warning("Gradient code for Rvmmin may be faulty - check it!")

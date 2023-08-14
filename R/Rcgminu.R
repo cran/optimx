@@ -272,7 +272,8 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
                     newstep <- 2 * (f - fmin - gradproj * steplength)  # JN 081219 change
                     if (newstep > 0) {
                       newstep = -(gradproj * steplength * steplength/newstep)
-                    }
+                    } # !!!!BUG -- what happens when newstep <= 0?
+                    else newstep <- 2*steplength # 20220627 try a doubling
                     bvec <- par + newstep * t
                     changed <- (!identical((bvec + reltest), 
                       (par + reltest)))

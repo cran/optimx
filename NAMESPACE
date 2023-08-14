@@ -1,11 +1,19 @@
 importFrom("stats", "nlm", "nlminb", "optim")
 importFrom("numDeriv", "grad", "hessian", "jacobian")
 importFrom("utils", "str")
+importFrom("nloptr", "nloptr")
+# importFrom("nloptr", "tnewton")
+# importFrom("nloptr", "slsqp")
+importFrom("pracma", "anms")
+importFrom("pracma", "nelder_mead")
+importFrom("utils", "getFromNamespace")
+# importFrom("marqLevAlg", "mla")
 export(
   "axsearch",
   "bmchk",
   "bmstep",
   "checksolver",
+  "checkallsolvers",
   "ctrldefault",
   "dispdefault",
   "coef<-",
@@ -17,14 +25,17 @@ export(
   "grchk",
   "grfwd",
   "grnd",
+  "grpracma",
   "hesschk", 
   "hjn",
   "kktchk",
   "multistart",
-  "optimx",
-  "optimr",
+  "ncg",
+  "nvm",
   "opm",
   "optchk",
+  "optimr",
+  "optimx",
   "optsp",
   "polyopt",
   "proptimr",
@@ -37,8 +48,9 @@ export(
   "Rvmminb",
   "Rvmminu",
   "scalechk",
-  "snewton",
-  "snewtonm"
+  "snewtm",
+  "snewton"
+#  "snewtonm"
 )
 S3method("[", "opm")
 S3method("as.data.frame", "opm")

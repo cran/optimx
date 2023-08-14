@@ -3,13 +3,18 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             control=list(),
              ...) {
 
-  optcfg <- optimx.setup(par, fn, gr, hess, lower, upper, 
-            method, itnmax, hessian, control, ...)
+  fn1 <- function(par) fn(par,...) # avoid dotarg clashes
+  gr1 <- if (!is.null(gr)) function(par) gr(par,...) # ?? will this fail for quoted names
+  he1 <- if (!is.null(hess)) function(par) hess(par,...) 
+
+
+  optcfg <- optimx.setup(par, fn1, gr1, he1, lower, upper, 
+            method, itnmax, hessian, control) # NO dotargs now
 # Parse and use optcfg
   if (optcfg$ctrl$starttests) {
     optchk <- optimx.check(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower,
            upper, hessian, optcfg$ctrl, have.bounds=optcfg$have.bounds,
-           usenumDeriv=optcfg$usenumDeriv, ...)
+           usenumDeriv=optcfg$usenumDeriv)
   }
   optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
   if (! is.null(control$trace) && control$trace > 1) {
@@ -17,7 +22,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     print(optcfg)
   }
   ansout <- optimx.run(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower, upper,
-            optcfg$method, itnmax, hessian, optcfg$ctrl, ...)
+            optcfg$method, itnmax, hessian, optcfg$ctrl)
   details <- attr(ansout, "details")
   attr(ansout, "details") <- NULL ## Not sure this necessary, but null here and replace below
   if (optcfg$ctrl$maximize) {

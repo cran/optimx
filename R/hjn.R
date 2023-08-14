@@ -9,7 +9,7 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
   } else { stepsize <- control$stepsize }
   # Want stepsize positive or bounds get messed up
   if (is.null(control$stepredn)) {
-     stepredn <- .1 # defined step reduction (again in control()??)
+     stepredn <- .1 # defined step reduction (again in control()?)
   } else { stepredn <- control$stepredn }
   if (is.null(control$maxfeval)) control$maxfeval<-2000*n
   if (is.null(control$eps)) control$epsl<-1e-07
@@ -33,7 +33,7 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
 #  print(idx)
   }
   nac <- length(idx)
-  offset = 100. # get from control() -- used for equality check
+  if (is.null(control$reltest)) { reltest = 100 } else {reltest <- control$reltest}
   if (any(par < lower) || any(par > upper)) stop("hjn: initial parameters out of bounds")
   pbase <- par # base parameter set (fold is function value)
   f <- fn(par, ...) # fn at base point
@@ -57,9 +57,9 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
        j <- idx[jj]
        ptmp <- par[j]
        doneg <- TRUE # assume we will do negative step
-       if (ptmp + offset < upper[j] + offset) { # Not on upper bound so do pos step 
+       if (ptmp + reltest < upper[j] + reltest) { # Not on upper bound so do pos step 
           par[j] <- min(ptmp+stepsize, upper[j])
-          if ((par[j] + offset) != (ptmp + offset)) {
+          if ((par[j] + reltest) != (ptmp + reltest)) {
              fcount <- fcount + 1
              f <- fn(par, ...)
 #               cat(fcount, "  f=",f," at ")
@@ -77,9 +77,9 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
        if (fcount >= control$maxfeval) break
        if (doneg) {
          resetpar <- TRUE # going to reset the paramter unless we improve
-         if ((ptmp + offset) > (lower[j] + offset)) { # can do negative step
+         if ((ptmp + reltest) > (lower[j] + reltest)) { # can do negative step
             par[j] <- max((ptmp - stepsize), lower[j])
-            if ((par[j] + offset) != (ptmp + offset)) {
+            if ((par[j] + reltest) != (ptmp + reltest)) {
                fcount <- fcount + 1
                f <- fn(par, ...)
 #                 cat(fcount, "  f=",f," at ")
@@ -143,7 +143,7 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
         return(ans)
        }
        # first check if point changed
-       samepoint <- identical((par + offset),(pbase + offset))
+       samepoint <- identical((par + reltest),(pbase + reltest))
        if (samepoint) { 
           stepsize <- stepsize*stepredn
           if (control$trace > 1) cat("Reducing step to ",stepsize,"\n")

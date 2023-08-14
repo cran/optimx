@@ -58,7 +58,7 @@ gHgen <- function(par, fn, gr = NULL, hess = NULL, control = list(ktrace=0),
     hessOK <- FALSE
     if (is.null(hess)) {
         if (is.null(gr)) {
-            if (ctrl$ktrace>0) cat("is.null(gr) is TRUE use numDeriv hessian()\n") # ???
+            if (ctrl$ktrace>0) cat("is.null(gr) is TRUE use numDeriv hessian()\n") 
             Hn <- try(hessian(fn, par, ...), silent = TRUE)  # change 20100711
             if (inherits(Hn, "try-error")) {
                 if (ctrl$stoponerror) 
@@ -68,7 +68,7 @@ gHgen <- function(par, fn, gr = NULL, hess = NULL, control = list(ktrace=0),
             else hessOK <- TRUE  # Do not need to check for symmetry either.
         }
         else {
-            if (ctrl$ktrace>0) cat("is.null(gr) is FALSE use numDeriv jacobian()\n") # ???
+            if (ctrl$ktrace>0) cat("is.null(gr) is FALSE use numDeriv jacobian()\n") 
             Hn <- try(jacobian(gr, par, ...), silent = TRUE)  # change 20100711
             if (inherits(Hn, "try-error")) {
                 if (ctrl$stoponerror) 
@@ -101,7 +101,7 @@ gHgen <- function(par, fn, gr = NULL, hess = NULL, control = list(ktrace=0),
         }  # numerical hessian at 'solution'
     }
     else {
-        if (ctrl$ktrace>0) cat("is.null(hess) is FALSE -- trying hess()\n") # ???
+        if (ctrl$ktrace>0) cat("is.null(hess) is FALSE -- trying hess()\n") 
         Hn <- try(hess(par, ...), silent = TRUE)  # change 20110222
         if (inherits(Hn, "try-error")) {
             if (ctrl$stoponerror) 

@@ -10,8 +10,8 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
     #    give inadmissible parameter sets to functions.
     #    We also apply symmetry check BEFORE the bounds/masks projection.
     #    JN 2011-6-25
-    #    ?? How should that be dealt with generally?? 110625
-    #    ?? specifically can do 1 parameter at a time
+    #     How should that be dealt with generally? 110625
+    #       Specifically can we do 1 parameter at a time?
     #################################################################
     #
     # Input:
@@ -22,7 +22,7 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
     # hess = name of a function to compute the (analytic) hessian of the user
     #   function
     #         This will rarely be available, but is included for completeness.
-    #  bdmsk = index of bounds and masks (see ?? for explanation)
+    #  bdmsk = index of bounds and masks (see Extend-optimx vignette for explanation)
     #  lower = vector of lower bounds on the parameters par
     #  upper = vector of upper bounds on the parameters par
     #  control=list of controls:
@@ -63,8 +63,7 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
         0)))))
     nbm <- length(bmset)  # number of elements nulled by bounds
     #  Note: we assume that we are ON, not over boundary, but use <= and >=.
-    # No tolerance is used. ?? Do we want to consider parameters 'close' to
-    #   bounds?
+    # No tolerance is used. At this time, we do not consider parameters 'close' to  bounds.
     gradOK <- FALSE
     if (ctrl$ktrace > 0) 
         cat("Compute gradient approximation\n")
@@ -92,10 +91,10 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
     hessOK <- FALSE
     if (is.null(hess)) {
         if (ctrl$ktrace > 0) 
-            cat("is.null(hess) is TRUE\n")  # ???
+            cat("is.null(hess) is TRUE\n") 
         if (is.null(gr)) {
             if (ctrl$ktrace > 0) 
-                cat("is.null(gr) is TRUE use numDeriv hessian()\n")  # ???
+                cat("is.null(gr) is TRUE use numDeriv hessian()\n")  
             Hn <- try(hessian(fn, par, ...), silent = TRUE)  # change 20100711
             if (inherits(Hn, "try-error")) {
                 if (ctrl$stoponerror) 
@@ -106,7 +105,7 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
         }
         else {
             if (ctrl$ktrace > 0) 
-                cat("is.null(gr) is FALSE use numDeriv jacobian()\n")  # ???
+                cat("is.null(gr) is FALSE use numDeriv jacobian()\n")  
             tHn <- try(Hn <- jacobian(gr, par, ...), silent = TRUE)  # change 20100711
             if (inherits(tHn,"try-error")) {
                 if (ctrl$stoponerror) 
@@ -141,7 +140,7 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
     }
     else {
         if (ctrl$ktrace > 0) 
-            cat("is.null(hess) is FALSE -- trying hess()\n")  # ???
+            cat("is.null(hess) is FALSE -- trying hess()\n")  
         Hn <- try(hess(par, ...), silent = TRUE)  # change 20110222
         if (inherits(Hn, "try-error")) {
             if (ctrl$stoponerror) 

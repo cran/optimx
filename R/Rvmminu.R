@@ -2,7 +2,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   #
   #
   #  Author:  John C Nash
-  #  Date:    Jan 7, 2015
+  #  Date:    Dec 6, 2021 update
   #
   ## An R version of the Nash version of Fletcher's Variable
   #   Metric minimization -- unconstrained parameters
@@ -130,8 +130,8 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
      print(fargs)
   }
   ifn <- 1  # count function evaluations
-  stepredn <- 0.2  # Step reduction in line search
-  reltest <- 100  # relative equality test
+#  stepredn <- 0.2  # Step reduction in line search
+#  reltest <- 100  # relative equality test
   ceps <- .Machine$double.eps * reltest
   dblmax <- .Machine$double.xmax  # used to flag bad function
   #############################################
@@ -258,7 +258,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         ####      Backtrack only Line search                ####
         changed <- TRUE  # Need to set so loop will start
         steplength <- oldstep # 131202 - 1 seems best value (Newton step)
-        while ((f >= fmin) && changed && (!accpoint)) {
+        while (changed && (!accpoint)) {
           # We seek a lower point, but must change parameters too
 #
 #
@@ -315,13 +315,9 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
               keepgoing <- FALSE
               break
             }
-            if (f < fmin) {
-              # We have a lower point. Is it 'low enough' i.e.,
-              #   acceptable
-              accpoint <- (f <= fmin + gradproj * steplength * acctol)
-              if (trace > 2) cat("accpoint = ", accpoint,"\n")
-            }
-            else {
+            accpoint <- (f < fmin + gradproj * steplength * acctol) # NOTE: < not <=
+            if (trace > 2) cat("accpoint = ", accpoint,"\n")
+            if (! accpoint) {
               steplength <- steplength * stepredn
               if (trace > 0) cat("*")
             }
@@ -352,7 +348,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
 #
 #
         test <- try(g <- mygr(bvec, ...), silent = TRUE)  
-        if (inherits(test, "try-error")) stop("Bad gradient!!")
+        if (inherits(test, "try-error") ) stop("Bad gradient!!")
         if (any(is.nan(g))) stop("NaN in gradient")
         ig <- ig + 1
         if (maximize) g <- -g
