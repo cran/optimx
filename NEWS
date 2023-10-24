@@ -1,11 +1,6 @@
 NEWS about R package optimx
 
 =========== ONGOING CONCERNS =============
-IMMEDIATE WORK TO DO
-      o note n/npar in ncg
-      o snewton/snewtm ?? check
-      o check pracmanm for maximize??
-
 CURRENT BUGS or ISSUES
       o summary.opm should display solution being C(onstrained) or U(nconstrained) and 
 	    parameter status like proptimr(). C and U are attributes of "value". 
@@ -24,34 +19,12 @@ TODOS ideas:
         such cases be improved?
 
    Rtnmin
-   o    20171007 -- make lmqnbc printout conditional on trace??
+   o    The routines are a conversion of Stephen Nash tn/tnbc to R. 
+	As such, they are not necessarily efficient.
    o    Simplification and streamlining of code to mesh better with other R optimization 
-        tools.
-   o    Put maxit, maxfun in control list somehow.
-   o    Setup trace as integer to work properly
-
-   Rvmmin: (Noting that nvm is a replacement)
-   o    Saving of final Hessian approx as in Rvmminx
-   o    Eventual incorporation of line searches, possibly in a
-        separate routine
-   o Note Rvmminb was missing some bounds resetting steps. (ONLY NEEDS CHECK)
-        Also some cleanup of details for algorithm controls to use ctrldefault()
-        e.g., replace dblmax with control$bigval ??
-
-   Rcgmin: (Noting that ncg is a replacement)
-   o Rcgmin and Rvmmin should also check for character as well as null gradient
-   o In Rcgmin, fix lack of option for newstep < 0 in line search 20220626
-     Some problems still causing trouble and differences for ncg/Rcgmin
-   o Rcgmin seems to report reset of parameters to bounds when parameter
-     is apparently on the bound. Could have rounding issues, and should
-     avoid this warning if it is really not needed.??
-   o vectorize Rcgminb ?? (but do it in ncg??)
-
-   ncg:
-   o Seems to be continuing ncg or ncgqs problem with Powell_bs problem -- still there220414
-   o ncg not doing well on rosenbrock compared to Rcgmin
-
-   Rtnmin:  (These NOT checked as at 20230619)
+        tools. Also put maxit, maxfun in control list somehow. Setup trace as integer 
+        to work properly.
+   (These NOT checked as at 20230619)
    o Rtnmin has same issue as Rvmmin resetting bounds bdmsk ??
    o 20171007 -- make lmqnbc printout conditional on trace??
    o ??2016-09-22 account for null gradient 
@@ -60,22 +33,51 @@ TODOS ideas:
      single bounds. Fails Chebyquad (prob 35) if L or U but works B,
      or unconstrained.
 
-   snewonm/snewton:  (These NOT checked as at 20230619)
+   Rvmmin / nvm: 
+   o    Saving of final Hessian approx as in Rvmminx
+   o    Eventual incorporation of different line searches, possibly in a
+        separate routine
+
+   snewtm/snewton:  (These NOT checked as at 20230619)
    o snewtonm does NOT use approximate hessian particularly jacobian(gradient)
      Clean up snewtonmbtest.R ?? check if this done?
-   o SNewton.Rmd has examples moved to R scripts -- ??partial. Need to add approx. Hess.
-   o Needed to trap singular Hessian for snewton and snewtonm ?? do we?
+   o SNewton.Rmd has examples moved to R scripts -- Need to add approx. Hess.
+   o Needed to trap singular Hessian for snewton and snewtm ?? do we?
    o update check of maskmeth i.e., methods that can handle masks, esp for snewtonmb
-
-   Nelder-Mead and related methods: 
-   o McKinnon Nelder Mead test functions -- set them up -- no issue for 
-     Nelder-Mead, nmkb or anms, but optimr does NOT use McKinnon initial
-     polytope. ?? mention in Intro to optimx
 
 ===================================================================================
 NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge.
+
+VERSION 2023-10-21
+      o Expand diagnostic for missing or unsuitable method(s)
+      o Fix unnecessary ",..." in call to L-BFGS-B in optimr(). The dot-args were 
+        removed to avoid an argument collision (VERSION 2023-06-25) using a suggestion
+        of Duncan Murdoch, but I forgot to remove this case.
+      o Duncan Murdoch proposed and suggested a patch to avoid termination by try(),
+        though failure is reported, and to attempt to give better error messages on 
+        cause of failure in such cases.
+      o Some minor corrections to simple typos and extraneous text.
+      o Added checks on valid methods in opm(), trap for bounded methods in optimr().
+
+VERSION 2023-09-01
+      o Used Henrik Bengsston's R.rsp method to install static pdf vignettes as some
+        CRAN test platforms seem to be missing files needed to build vignettes from 
+        Rmarkdown source files. The vignette source Rmarkdown files are in the 
+        directory inst/doc/vignette-source.
+
+VERSION 2023-08-23
+      o Thanks to Mark Pletscher for uncovering a bug due to a typo in optimr(). Also
+        noting that optimr() now fails if input parameters are infeasible. However, 
+        users can pre-adjust parameters as follows
+           # set initial parameters in vector init, lower and upper bounds in lo and up
+           chkpar <- bmchk(init, lower=lo, upper=up)
+           if (chkpar$parchanged) init <- chckpar$bvec
+      o kktchk now has control with default dowarn=TRUE to allow suppression of overly
+        common warning that estimated Hessian at solution is asymmetric. The test for
+        asymmetry is very difficult to set up in a way that does not give warnings when
+        the Hessian estimate is reasonable (false positives).
 
 VERSION 2023-06-25
 
@@ -145,7 +147,7 @@ VERSION 2023-06-25
       o Stripped down nvm() to use checks already done in optimr()
       o Commented out user input after error in line search in Rtnmin-package.R
       o Fixed minor glitch in bmchk() status indicators
-      o Created first try at snewtm() to run from optimr; snewtonm() left as
+      o Created first try at snewtm() to run only from optimr; snewtonm() left as
         stand-alone function
 
 

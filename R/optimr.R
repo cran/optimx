@@ -68,6 +68,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
 #      par <- bdmsk$bvec
 #  }
   control$have.bounds <- bdmsk$bounds # and set a control value
+  if (control$have.bounds && !(method %in% control$bdmeth)) stop("Bounded problem with unsuitable method")
 
   orig.method <- method
   if (!is.null(gr) && !is.character(gr)) { orig.gr <- gr1 } else {orig.gr <- gr }
@@ -286,13 +287,12 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
             if(control$trace > 3) cat("L-BFGS-B start: ")
             ans <- try(optim(par=par, fn=efn, gr=egr, 
                       lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
-                       control=mcontrol, ...))
+                       control=mcontrol)) # remove , ... 231016
             if(control$trace > 3) cat(" ans$value=",ans$value,"\n")
           }
         } else {
           ans <- try(optim(par=par, fn=efn, gr=egr, 
-                method=method, hessian=FALSE, control=mcontrol))
-#                method=method, hessian=FALSE, control=mcontrol, ...))
+                method=method, hessian=FALSE, control=mcontrol)) # remove , ... 231016
         }
         if (inherits(ans,"try-error")) { # bad result -- What to do?
 		  ans<-list() # ans not yet defined, so set as list
@@ -325,7 +325,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
         ans <- try(nlminb(start=spar, objective=efn, gradient=egr, hessian=ehess, lower=slower, 
 		upper=supper, control=mcontrol))
-#		upper=supper, control=mcontrol,  ...))
         if (! inherits(ans, "try-error")) {
 		# Translate output to common format and names
         	ans$value<-ans$objective
@@ -616,7 +615,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
          ## return(ans)
       }  ## end if using snewton
   ## --------------------------------------------
-  else if (method == "snewtonm") { # Use snewtonm routine
+  else if ((method == "snewtm") || (method=="snewtonm")) { # Use snewtm/snewtonm routine
     mcontrol$maxit <- control$maxit
     mcontrol$maxfeval <- control$maxfeval # changed from maxfevals 180321
     mcontrol$trace <- control$trace # 140902 Note no check on validity of values
@@ -686,7 +685,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
       }
     } # end have answer
     ## return(ans)
-  }  ## end if using snewtonm
+  }  ## end if using snewtm
   ## --------------------------------------------
       else if (method == "hjn") {# Use JN Hooke and Jeeves
         if (control$trace > 1) { 
@@ -1117,6 +1116,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
 ## --------------------------------------------
       else if (method == "lbfgsb3c") {# Use 2011 L-BFGS-B wrapper
         if (control$trace > 1) cat("lbfgsb3c\n")
+        mcontrol$maxit <- control$maxit # 151217 JN
         mcontrol$trace <- control$trace
 # 170924 no longer needed
 ##        if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
@@ -1389,7 +1389,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
          }
       }  ## end if using tnewton
 ## --------------------------------------------
-  else if (method == "anms") {# Use unconstrained method from marqLevAlg
+  else if (method == "anms") {# Use nelder-mead method from pracma
       if (control$trace > 1) cat("anms\n")
       # Following seems to be needed to avoid unwanted output
       #  if (control$trace < 1) {invisible <- 1} else {invisible <- 0}

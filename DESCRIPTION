@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2023-8.13
-Date: 2023-08-13
+Version: 2023-10.21
+Date: 2023-10-21
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -25,9 +25,10 @@ LazyLoad: Yes
 Imports: numDeriv, nloptr, pracma
 NeedsCompilation: no
 Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim,
-        lbfgsb3c, lbfgs, subplex, marqLevAlg, testthat (>= 3.0.0)
-VignetteBuilder: knitr
+        lbfgsb3c, lbfgs, subplex, marqLevAlg, testthat (>= 3.0.0),
+        R.rsp
+VignetteBuilder: R.rsp
 Config/testthat/edition: 3
-Packaged: 2023-08-13 21:21:12 UTC; john
+Packaged: 2023-10-24 12:58:46 UTC; john
 Repository: CRAN
-Date/Publication: 2023-08-14 07:10:12 UTC
+Date/Publication: 2023-10-24 13:50:02 UTC

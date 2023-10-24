@@ -1,4 +1,5 @@
-kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALSE, control=list(), ...) {
+kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALSE, 
+          control=list(dowarn=TRUE), ...) {
 # Provide a check on Kuhn-Karush-Tucker conditions based on quantities
 # already computed. Some of these used only for reporting.
 ##
@@ -110,7 +111,9 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    pHes <- nHes # projected Hessian
 #   cat("max asymmetry:", max(abs(pHes-t(pHes))), "\n")
    if (! isSymmetric(unname(pHes))  ) {
+      if (control$dowarn) {
       warning("kktchk: pHes not symmetric -- symmetrizing")
+      }
       pHes <- 0.5*(pHes + t(pHes))
    }
    pHes[which(bdout$bdmsk != 1), ] <- 0.0

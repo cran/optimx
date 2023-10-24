@@ -31,5 +31,6 @@ ans <- optimr(xx, jones, jonesg, method="Rvmmin")
 ans
 
 ans$par <- c(3.154083, -3.689620)
+# 20230823 may want to set dowarn
 kkans <- kktchk(ans$par, jones, jonesg)
 kkans
