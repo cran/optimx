@@ -115,6 +115,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
 
   efn <- function(spar) { # dotargs removed 230619
       optsp$kfn<-optsp$kfn+1 # counter
+# Emergency stop mechanism commented out as it will not stop gracefully from opm()
+#      cat("efn::control$maxfeval=",control$maxfeval," optsp$kfn=",optsp$kfn,"\n")
+#      if (optsp$kfn > 2 * control$maxfeval) stop("Emergency stop on function evaluation count")
       # rely on pscale being defined in this enclosing environment
       par <- spar*pscale
       val <- fn1(par) * fnscale
@@ -126,7 +129,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
      if ( ! (gr %in% control$grapprox)) stop(gr," is not a valid gradient approximation code")
      if (control$trace>0) cat("Using numerical approximation '",gr,"' to gradient in optimr()\n")
      egr <- function(spar){ 
-       optsp$kgr<-optsp$kgr+1 # counter
+       optsp$kgr<-optsp$kgr+1 # counter # 20241202 -- was missing from scounts
        if (control$trace > 2) {
          cat("par:"); print(par)
          cat("fnscale =",fnscale,"  pscale="); print(pscale)
@@ -141,6 +144,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
     else {
        egr <- function(spar) {
          optsp$kgr<-optsp$kgr+1 # counter
+# Emergency stop mechanism commented out as it will not stop gracefully from opm()
+#         cat("egr::control$maxit=",control$maxit," optsp$kgr=",optsp$kgr,"\n")
+#         if (optsp$kgr > 2 * control$maxit) stop("Emergency stop on gradient evaluation count")
          par <- spar*pscale
          result <- gr1(par) * pscale * fnscale
        }
@@ -402,6 +408,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         mcontrol$trace <- control$trace
         mcontrol$maxit <- control$maxit # 151217 JN
         mcontrol$stepredn <- control$stepredn # 220217
+        mcontrol$maxfeval <- control$maxfeval # 241023
+#        print(mcontrol)
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
         if (! is.null(egr)) { #?? why not slower, supper?
    	     ans <- try(ncg(par=spar, fn=efn, gr=egr, bds=bdmsk, control=mcontrol))
@@ -435,6 +443,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
       else if (method == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
         mcontrol$trace <- control$trace
         mcontrol$maxit <- control$maxit # 151217 JN
+        mcontrol$maxfeval <- control$maxfeval # 241023
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
         if (! is.null(egr)) {
   	  if (control$have.bounds) { # 151220 -- this was not defined
@@ -476,6 +485,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         mcontrol$trace <- control$trace
         mcontrol$maxit <- control$maxit # 151217 JN
         mcontrol$stepredn <- control$stepredn # 220217
+        mcontrol$maxfeval <- control$maxfeval # 241023
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
         if (! is.null(egr)) { #?? why not slower, supper?
 # 230622 update to simplify call
@@ -814,6 +824,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         errmsg <- NA
         class(ans)[1] <- "undefined" # initial setting
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
+## Count limits NOT working for Rtnmin
+##        mcontrol$maxit <- control$maxit
+##        mcontrol$maxfun <- control$maxfevals        
         if (is.null(egr)) { ## fixed msg below (referred to lbfgs) 170214
             if (control$trace > 0) cat("Rtnmin MUST have gradient provided\n")
             errmsg <- "Rtnmin MUST have gradient provided"
@@ -821,9 +834,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         } else {
            if (control$have.bounds) {
    	      ans <- try(tnbc(x=spar, fgfun=fgfn, lower=slower,
-                   upper=supper, trace=mcontrol$trace))
+                   upper=supper, trace=mcontrol$trace, control=mcontrol))
            } else {
-   	      ans <- try(tn(x=spar, fgfun=fgfn, trace=mcontrol$trace))
+   	      ans <- try(tn(x=spar, fgfun=fgfn, trace=mcontrol$trace, control=mcontrol))
 	   }
         }
         if (inherits(ans,"try-error")) {
@@ -1141,6 +1154,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
  ## Need to check these carefully. Changed 20191202 for lbfgsb3c !!?
             ans$par <- ans$par*pscale
             ans$niter <- NULL # loss of information
+            if (is.na(ans$convergence)){ ans$convergence <- 9995 }
          } else {
             if (control$trace>0) cat("lbfgsb3c failed for current problem \n")
             ans<-list(fevals=NA) # ans not yet defined, so set as list
@@ -1150,7 +1164,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
             ans$counts[1] <- NA
             ans$counts[1] <- NA
          }
-         ## return(ans)
+#         return(ans)
       }  ## end if using lbfgsb3c
 ## --------------------------------------------
       else if (method == "lbfgs") {# Use unconstrained method from lbfgs package
@@ -1174,12 +1188,12 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
             class(ans)[1] <- "try-error"            
         }
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
-        if (inherits(ans, "undefined")){ #?? need to explain why no dots??
-            ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, 
+        if (inherits(ans, "undefined")){ 
+            ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, max_iterations=control$maxit,
                     invisible=invisible))
         }
         if (! inherits(ans, "try-error")) {
-        ## Need to check these carefully!!?
+        ## Need to check these carefully!!??
             ans$par <- ans$par*pscale
             ans$counts[1] <- NA # lbfgs seems to have no output like this
             ans$counts[2] <- NA
@@ -1342,9 +1356,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
       }  ## end if using slsqp
 ## --------------------------------------------
   else if (method == "tnewt") {# tnewton from nloptr
-      if (control$trace > 1) cat("tnewt\n")
-      # Following seems to be needed to avoid unwanted output
-      #  if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
+      if (control$trace > 1) cat("tnewt: Note that trace control not available for nloptr::tnewton\n")
       ans <- list() # to define the answer object
       errmsg <- NA
 #      nlalg <- "NLOPT_LD_SLSQP"
@@ -1352,11 +1364,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
       if (inherits(ans, "undefined")){
          dotstuff<-list(...)
          if (is.null(dotstuff)) { cat("No ...\n") }
-          maxeval<-control$maxfeval
           if (length(slower) == 1) slower<-rep(slower, npar)
           if (length(supper) == 1) supper<-rep(supper, npar)
           tans <- try(nloptr::tnewton(x0=spar, efn, egr, lower=slower, upper=supper,
-                        control=list(maxeval=maxeval)) )
+                        control=list(maxeval=control$maxfeval)) )
       }
       if (control$trace > 3) {
         cat("interim answer:")

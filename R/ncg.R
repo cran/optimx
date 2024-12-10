@@ -21,11 +21,14 @@ ncg <- function(par, fn, gr, bds, control = list()) {
     } else { mygr<-gr }
     ## Set working parameters (See CNM Alg 22)
     if (trace > 0) {
-        cat("ncg -- J C Nash 2023 - bounds constraint version of new CG\n")
+        cat("ncg -- J C Nash 2023 (vn 20241125) - bounds constraint version of new CG\n")
         cat("an R implementation of Alg 22 with Yuan/Dai modification\n")
     }
     bvec <- par  # copy the parameter vector
-    maxfeval <- round(sqrt(npar + 1) * maxit)  # change 091219
+    if (is.null(ctrl$maxfeval)){
+         maxfeval <- round(sqrt(npar + 1) * maxit)
+    } else { maxfeval <- ctrl$maxfeval }  # change 091219, 241125
+    if (trace > 0) cat("maxfeval = ", maxfeval," maxit=",maxit,"\n")
     ig <- 0  # count gradient evaluations
     ifn <- 1  # count function evaluations (we always make 1 try below)
     stepredn <- ctrl$stepredn
@@ -80,7 +83,8 @@ ncg <- function(par, fn, gr, bds, control = list()) {
                   maxfeval, ") ", sep = "")
                 if (trace > 0) 
                   cat(msg, "\n")
-                ans <- list(par, fmin, c(ifn, ig), 1, msg, bdmsk)  # 1 indicates not converged in function limit
+                ans <- list(par, fmin, c(ifn, ig), 1, msg, bdmsk)  
+                    # 1 indicates not converged in function limit
                 names(ans) <- c("par", "value", "counts", "convergence", 
                   "message", "bdmsk")
                 return(ans)
@@ -198,6 +202,16 @@ ncg <- function(par, fn, gr, bds, control = list()) {
                     f <- fn(bvec)  # Because we need the value for linesearch, don't use try()
                     # instead preferring to fail out, which will hopefully be unlikely.
                     ifn <- ifn + 1
+                    if (ifn > maxfeval) {
+                      msg <- paste("Too many function evaluations (> ", 
+                                  maxfeval, ") ", sep = "")
+                      if (trace > 0) cat(msg, "\n")
+                      ans <- list(par, fmin, c(ifn, ig), 1, msg, bdmsk)  
+                          # 1 indicates not converged in function limit
+                      names(ans) <- c("par", "value", "counts", "convergence", 
+                           "message", "bdmsk")
+                      return(ans)
+                    }
                     if (is.na(f) || (!is.finite(f))) { warning("ncg - undefined function")
                       f <- .Machine$double.xmax
                     }
@@ -245,6 +259,16 @@ ncg <- function(par, fn, gr, bds, control = list()) {
                       f <- fn(bvec)
                       ifn <- ifn + 1
                     }
+                    if (ifn > maxfeval) {
+                      msg <- paste("Too many function evaluations (> ", 
+                          maxfeval, ") ", sep = "")
+                      if (trace > 0) cat(msg, "\n")
+                      ans <- list(par, fmin, c(ifn, ig), 1, msg, bdmsk)  
+                         # 1 indicates not converged in function limit
+                      names(ans) <- c("par", "value", "counts", "convergence", 
+                        "message", "bdmsk")
+                      return(ans)
+                    }
                     if (trace > 2) cat("fmin, f1, f: ", fmin, f1, f, "\n")
                     if (f < min(fmin, f1)) { # success
                       OKpoint <- TRUE
@@ -279,10 +303,11 @@ ncg <- function(par, fn, gr, bds, control = list()) {
                 else { # not changed on step redn
                   if (cycle == 1) { msg <- " Converged -- no progress on new CG cycle"
                     if (trace > 0) cat("\n", msg, "\n")
-                    keekpgoing <- FALSE
+                    keepgoing <- FALSE
                     break  #!!
                   }
                 }  # end else
+#               if (! keepgoing) break # 2023-10-27 to exit
             }  # end of test on Yuan/Dai condition
             #### End line search ####
             if (bounds) { ## Reactivate constraints?? -- should check for infinite bounds
@@ -305,12 +330,14 @@ ncg <- function(par, fn, gr, bds, control = list()) {
                     }  # end test on free params
                  }  # end reactivate constraints
             }  # end if bounds
+#            if (! keepgoing) break # 2023-10-27 to exit
         }  # end of inner loop (cycle)
         if (oldstep < acctol) {
             oldstep <- acctol
         }  #   steplength
         if (oldstep > 1) { oldstep <- 1 } # Force no bigger than 1
         if (trace > 1) cat("End inner loop, cycle =", cycle, "\n")
+#        if (! keepgoing) break # 2023-10-27 to exit
     }  # end of outer loop
     msg <- "ncg seems to have converged"
     if (trace > 0) cat(msg, "\n")

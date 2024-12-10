@@ -1,6 +1,7 @@
 \name{Rvmmin}
 \alias{Rvmmin}
-\alias{nvm}
+\alias{Rvmminb}
+\alias{Rvmminu}
 \encoding{UTF-8}
 \title{Variable metric nonlinear function minimization, driver.}
 \description{A driver to call the unconstrained and bounds constrained versions of an 
@@ -24,7 +25,9 @@ the method terminates.
 \usage{
    Rvmmin(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
 
-   nvm(par, fn, gr, bds, control = list())
+   Rvmminb(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
+   
+   Rvmminu(par, fn, gr, control = list(), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -66,8 +69,6 @@ the method terminates.
    However, redefining this is discouraged unless you understand what
    you are doing. 
  }
-\item{bds}{A list of information resulting from function \code{bmchk} giving
-     information on the status of the parameters and bounds and masks.}     
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
  \item{bdmsk}{An indicator vector, having 1 for each parameter that is "free" 
@@ -101,7 +102,7 @@ the method terminates.
   \item{maxit}{A limit on the number of iterations (default 500 + 2*n where n is
      the number of parameters). This is the maximum number of gradient evaluations 
      allowed.}
-  \item{maxfevals}{A limit on the number of function evaluations allowed 
+  \item{maxfeval}{A limit on the number of function evaluations allowed
      (default 3000 + 10*n).}
   \item{trace}{Set 0 (default) for no output, > 0 for diagnostic output
      (larger values imply more output).}
