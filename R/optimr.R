@@ -1,14 +1,19 @@
 optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=Inf, 
             hessian=FALSE, control=list(), ...) {
-
-  fname <- as.list(sys.call())$fn # FAILED rlang::as_name(as.list(sys.call())$fn)
+  parOK<-is.vector(par, mode="double")
+  if (! parOK) {
+     warning("optimr: par is NOT a vector of type double -- coercing")
+     par <- as.vector(as.double(par))
+  }
+  npar <- length(par)
+  parnam<-names(par)
+  fname <- as.list(sys.call())$fn # Following FAILED rlang::as_name(as.list(sys.call())$fn)
   if (length(method) > 1) stop("optimr requires single method")
   if (is.null(method)) method <- control$defmethod # Set a default method
   fn1 <- function(par) fn(par,...) # avoid dotarg clashes
   gr1 <- if (!is.null(gr) && !is.character(gr)) function(par) gr(par,...) # ?? will this fail for quoted names
   he1 <- if (!is.null(hess) && !is.character(hess)) function(par) hess(par,...) 
 
-  npar <- length(par)
   ctrl <- ctrldefault(npar)
   ncontrol <- names(control)
   nctrl <- names(ctrl)
@@ -54,6 +59,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
 	  ans$counts[2] <- NA # save function and gradient count information
 	  ans$message <- paste("Missing method ",method)
     ans$hessian <- NULL
+    names(ans$par) <- parnam # restore the names
     return(ans) # can't proceed without solver
   }
 
@@ -1559,13 +1565,14 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
       else {
          attr(ans$par, "status") <- rep(" ",npar)
          attr(ans$value, "ptype") <- "U"
-      }         
+      }
+      names(ans$par) <- parnam # restore the names
       if (savehess) { # compute hessian
          if (is.null(orig.hess)){
            if (is.null(orig.gr) || is.character(orig.gr) ) {
-              hes <- hesf(orig.fn, ans$par, ...) # from numDeriv or pracma??
+              hes <- hesf(fn1, ans$par) # from numDeriv or pracma, fix 20250403 (fn1)
            } else { 
-             hes <- jacf(orig.gr, ans$par, ...) # use Jacobian of gradient
+             hes <- jacf(gr1, ans$par) # use Jacobian of gradient, change to gr1 20250403
              # 20230613: this approach may give asymmetry of matrix
              hes <- 0.5*(hes + t(hes)) # symmetrize
            }
@@ -1575,5 +1582,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
          }
       } else { hes <- NULL } # to ensure it is defined
       ans$hessian <- hes
+      attr(ans, "maximize") <- control$maximize # added 241224
       ans # last statement of routine
 } ## end of optimr
